@@ -1,0 +1,3 @@
+﻿  FightCreature.cpp
+D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(233,16): warning C4834: discarding return value of function with 'nodiscard' attribute
+  FightCreature.vcxproj -> D:\Programming\C++GameLab\B班程式\FightCreature\Debug\FightCreature.exe
