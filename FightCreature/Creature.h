@@ -33,6 +33,7 @@ private:
 
 public:
 	void setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode);
+	int setCreatureLocation(std::vector<std::string> lineString, int lineIndex);
 	void seeHero(int heroX, int heroY);
 	int damage();
 	int getX();

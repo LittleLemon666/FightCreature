@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <sstream>
 #include "Creature.h"
 
 void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode)
@@ -40,6 +42,14 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 		} while (!valid);
 		break;
 	}
+}
+
+int Creature::setCreatureLocation(std::vector<std::string> lineString, int lineIndex)
+{
+	std::stringstream ss;
+	ss << lineString[lineIndex++];
+	ss >> x >> y >> health >> attack >> energy;
+	return lineIndex;
 }
 
 void Creature::seeHero(int heroX, int heroY)

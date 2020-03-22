@@ -26,6 +26,7 @@ private:
 
 public:
 	void setHeroLocation(int dungeonWidth, int dungeonHeight, int mode);
+	int setHeroLocation(std::vector<std::string> lineString, int lineIndex);
 	int getX();
 	int getY();
 	int getState();

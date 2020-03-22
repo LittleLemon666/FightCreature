@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <sstream>
 #include "Hero.h"
 
 void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
@@ -40,6 +42,14 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 		} while (!valid);
 		break;
 	}
+}
+
+int Hero::setHeroLocation(std::vector<std::string> lineString, int lineIndex)
+{
+	std::stringstream ss;
+	ss << lineString[lineIndex++];
+	ss >> x >> y >> health >> attack;
+	return lineIndex;
 }
 
 int Hero::getSwordDirection()

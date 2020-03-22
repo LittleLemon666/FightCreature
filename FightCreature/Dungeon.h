@@ -21,7 +21,7 @@ public:
 	void generateTerrain(int heroX, int heroY, int creatureX, int creatureY);
 	bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);
 	void inputMap();
-	void loadMap();
+	int loadMap(std::vector<std::string> lineString);
 	void generateMap();
 	void printMap();
 	char getFloor();

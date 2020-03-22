@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <vector>
 #include <conio.h>
+#include <string>
 #include <sstream>
 #include "Dungeon.h"
 
@@ -112,26 +113,17 @@ void Dungeon::generateMap()
 	dungeonMap.push_back(stringTemp);
 }
 
-void Dungeon::loadMap()
+int Dungeon::loadMap(std::vector<std::string> lineString)
 {
-	/*std::string inputString;
-	while (true)
+	std::stringstream ss;
+	ss << lineString[0];
+	ss >> height >> width;
+	int lineIndex = 1;
+	for (; lineIndex - 1 < height; lineIndex++)
 	{
-		std::getline(cin, inputString);
-		dungeonMapTemp.push_back(inputString);
+		dungeonMap.push_back(lineString[lineIndex] + "\n");
 	}
-
-	height = 0;
-	for (string item : dungeonMapTemp)
-	{
-		width = 0;
-		for (char c : item)
-		{
-			dungeonMap[height].push_back(c);
-			width++;
-		}
-		height++;
-	}*/
+	return lineIndex;
 }
 
 void Dungeon::inputMap()

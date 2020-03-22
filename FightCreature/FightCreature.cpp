@@ -1,6 +1,8 @@
 ﻿#include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <string>
+#include <sstream>
 #include <cstdlib>
 #include <ctime>
 #include <vector>
@@ -12,6 +14,7 @@
 #include "Point.h"
 #define defaultCreatureNum 5
 using namespace std;
+using std::ifstream;
 
 int dx[] = { 0, 0, -1, 1 };
 int dy[] = { -1, 1, 0, 0 };
@@ -90,7 +93,6 @@ void draw()
     {
         screen[hero.getY()][hero.getX()] = 'H';
     }
-
     for (int i = 0; i < creatureTotal; i++)
     {
         if (creature[i].isLive())
@@ -143,7 +145,7 @@ void draw()
     creatureNum = 0;
     for (int i = 0; i < creatureTotal; i++)
     {
-        if (creature[i].getState() == CDeath)
+        if (!creature[i].isLive())
         {
             continue;
         }
@@ -202,8 +204,8 @@ void gameOver()
         draw();
         cout << "\n";
         cout << "---------Game Over---------\n";
+        return;
     }
-    return;
 
     gameState = GAMEOVER;
     for (int i = 0; i < creatureTotal; i++)
@@ -211,6 +213,7 @@ void gameOver()
         if (creature[i].isLive())
         {
             gameState = GAMING;
+            break;
         }
     }
     
@@ -344,6 +347,11 @@ void menu()
     while (true)
     {
         char choose = _getch();
+        ifstream inStream;
+        string fileName, fileString, stringT;
+        vector<string> lineString;
+        stringstream ss;
+        int lineIndex;
         switch (choose)
         {
         case '1':
@@ -361,8 +369,29 @@ void menu()
             dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
             draw();
             return;
+
         case '2':
+            cout << "file(*.txt) address: ";
+            //cin >> fileName;
+            fileName = "map\\Dungeon1.txt";
+            inStream.open(fileName);
+            while (getline(inStream, stringT))
+            {
+                lineString.push_back(stringT);
+            }
+            inStream.close();
+            lineIndex = dungeon.loadMap(lineString);
+            lineIndex = hero.setHeroLocation(lineString, lineIndex);
+            ss << lineString[lineIndex++];
+            ss >> creatureTotal;
+            for (int i = 0; i < creatureTotal; i++)
+            {
+                creature.push_back(Creature());
+                lineIndex = creature[i].setCreatureLocation(lineString, lineIndex);
+            }
+            draw();
             return;
+
         case '3':
             dungeon.inputMap();
             dungeon.printMap();

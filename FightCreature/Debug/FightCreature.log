@@ -1,9 +1,5 @@
-﻿  Dungeon.cpp
-D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\Dungeon.cpp(65,87): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\Dungeon.cpp(87,83): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  FightCreature.cpp
-D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(262,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(263,15): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(408,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Generating Code...
+﻿  FightCreature.cpp
+D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(265,16): warning C4834: discarding return value of function with 'nodiscard' attribute
+D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(266,15): warning C4834: discarding return value of function with 'nodiscard' attribute
+D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(437,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   FightCreature.vcxproj -> D:\Programming\C++GameLab\B班程式\FightCreature\Debug\FightCreature.exe
