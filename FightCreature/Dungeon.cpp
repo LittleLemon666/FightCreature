@@ -25,23 +25,50 @@ bool Dungeon::isBoundary(int x, int y)
 	return x < 1 || x > width - 2 || y < 1 || y > height - 2;
 }
 
-void Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, std::vector<std::vector<bool> >& flag)
+bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop)
 {
+	if (p >= pStop)
+	{
+		return false;
+	}
 	dungeonMap[nowY][nowX] = floor;
-	flag[nowY][nowX] = true;
 	if (nowX == targetX && nowY == targetY)
 	{
-		return;
+		return true;
 	}
 
 	int dx[] = { 0, 0, -1, 1 };
 	int dy[] = { -1, 1, 0, 0 };
 	int dir = rand() % 4;
-	while (isBoundary(nowX + dx[dir], nowY + dy[dir]) && !flag[nowY + dy[dir]][nowX + dx[dir]])
+	while (isBoundary(nowX + dx[dir], nowY + dy[dir]))
 	{
 		dir = rand() % 4;
 	}
-	searchPath(nowX + dx[dir], nowY + dy[dir], targetX, targetY, flag);
+	return searchPath(nowX + dx[dir], nowY + dy[dir], targetX, targetY, p + 1, pStop);
+}
+
+void Dungeon::generateTerrain(int heroX, int heroY, std::vector<Point> point, int creatureNum)
+{
+	for (int _y = 1; _y < height - 1; _y++)
+	{
+		for (int _x = 1; _x < width - 1; _x++)
+		{
+			dungeonMap[_y][_x] = wall;
+		}
+	}
+
+	std::cout << "Loading";
+	for (int i = 0; i < creatureNum; i++)
+	{
+		while (true)
+		{
+			if (searchPath(heroX, heroY, point[i].X, point[i].Y, 0, pow(heroX - point[i].X, 2) + pow(heroY - point[i].Y, 2)))
+			{
+				break;
+			}
+			std::cout << ".";
+		}
+	}
 }
 
 void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY)
@@ -54,17 +81,15 @@ void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY
 		}
 	}
 
-	std::vector<std::vector<bool> > flag(height);
-	for (int i = 0; i < height; i++)
+	std::cout << "Loading";
+	while (true)
 	{
-		for (int j = 0; j < width; j++)
+		if (searchPath(heroX, heroY, creatureX, creatureY, 0, pow(heroX - creatureX, 2) + pow(heroY - creatureY, 2)))
 		{
-			flag[i].push_back(false);
+			break;
 		}
+		std::cout << ".";
 	}
-	searchPath(heroX, heroY, creatureX, creatureY, flag);
-	searchPath(rand() % (width - 2) + 1, rand() % (height - 2) + 1, creatureX, creatureY, flag);
-	flag.clear();
 }
 
 void Dungeon::generateMap()

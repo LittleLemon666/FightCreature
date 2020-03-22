@@ -43,4 +43,5 @@ public:
 	void move(int _x, int _y);
 	int getEnergy();
 	int getHeroDirection();
+	bool isLive();
 };

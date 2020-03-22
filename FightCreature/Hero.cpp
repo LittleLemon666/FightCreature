@@ -6,8 +6,8 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 	switch(mode)
 	{
 	case 1:
-		x = rand() % (dungeonWidth - 1) + 1;
-		y = rand() % (dungeonHeight - 1) + 1;
+		x = rand() % (dungeonWidth - 2) + 1;
+		y = rand() % (dungeonHeight - 2) + 1;
 		break;
 	case 2:
 		break;
@@ -138,4 +138,9 @@ int Hero::slash(int creatureX, int creatureY)
 		}
 	}
 	return 0;
+}
+
+bool Hero::isLive()
+{
+	return state != HDeath;
 }

@@ -6,8 +6,8 @@
 class Dungeon
 {
 private:
-	int width = 15;
-	int height = 15;
+	int width = 28;
+	int height = 14;
 	char wall = '#';
 	char floor = ' ';
 	std::vector<std::string> dungeonMap;
@@ -17,8 +17,9 @@ public:
 	int getHeight();
 	bool isObstacle(int x, int y);
 	bool isBoundary(int x, int y);
+	void generateTerrain(int heroX, int heroY, std::vector<Point> point, int creatureNum);
 	void generateTerrain(int heroX, int heroY, int creatureX, int creatureY);
-	void searchPath(int nowX, int nowY, int targetX, int targetY, std::vector<std::vector<bool> >& flag);
+	bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);
 	void inputMap();
 	void loadMap();
 	void generateMap();

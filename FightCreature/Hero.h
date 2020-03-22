@@ -35,4 +35,5 @@ public:
 	void hurt(int damage);
 	void move(int _x, int _y);
 	int slash(int creatureX, int creatureY);
+	bool isLive();
 };

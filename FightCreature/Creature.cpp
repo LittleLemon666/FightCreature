@@ -6,8 +6,8 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 	switch (mode)
 	{
 	case 1:
-		x = rand() % (dungeonWidth - 1) + 1;
-		y = rand() % (dungeonHeight - 1) + 1;
+		x = rand() % (dungeonWidth - 2) + 1;
+		y = rand() % (dungeonHeight - 2) + 1;
 		break;
 	case 2:
 		break;
@@ -151,4 +151,9 @@ int Creature::getEnergy()
 int Creature::getHeroDirection()
 {
 	return heroDirection;
+}
+
+bool Creature::isLive()
+{
+	return state != CDeath;
 }

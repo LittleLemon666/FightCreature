@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <iomanip>
 #include <string>
+#include <cstdlib>
 #include <ctime>
 #include <vector>
 #include <queue>
@@ -9,6 +10,7 @@
 #include "Hero.h"
 #include "Creature.h"
 #include "Point.h"
+#define defaultCreatureNum 5
 using namespace std;
 
 int dx[] = { 0, 0, -1, 1 };
@@ -16,7 +18,9 @@ int dy[] = { -1, 1, 0, 0 };
 
 Dungeon dungeon;
 Hero hero;
-Creature creature;
+vector<Creature> creature;
+int creatureTotal;
+int creatureNum;
 int gameState;
 vector<string> screen;
 
@@ -33,6 +37,7 @@ enum KeyState
 
 enum GameState
 {
+    PREPARING,
     GAMING,
     GAMEOVER
 };
@@ -81,35 +86,24 @@ void getKey(bool key[])
 void draw()
 {
     screen = dungeon.outMap();
-    if (hero.getState() != HDeath)
+    if (hero.isLive())
     {
         screen[hero.getY()][hero.getX()] = 'H';
     }
-    else
-    {
-        screen[hero.getY()][hero.getX()] = dungeon.getFloor();
-    }
 
-    if (creature.getHeroDirection() == Unknown)
+    for (int i = 0; i < creatureTotal; i++)
     {
-        screen[creature.getY()][creature.getX()] = 'C';
-    }
-    else if (creature.getState() == CDeath)
-    {
-        screen[creature.getY()][creature.getX()] = dungeon.getFloor();
-    }
-    else
-    {
-        screen[creature.getY()][creature.getX()] = '!';
-    }
-
-    if (hero.getState() != HDeath)
-    {
-        screen[hero.getY()][hero.getX()] = 'H';
-    }
-    else
-    {
-        screen[hero.getY()][hero.getX()] = dungeon.getFloor();
+        if (creature[i].isLive())
+        {
+            if (creature[i].getHeroDirection() == Unknown)
+            {
+                screen[creature[i].getY()][creature[i].getX()] = 'C';
+            }
+            else
+            {
+                screen[creature[i].getY()][creature[i].getX()] = '!';
+            }
+        }
     }
 
     system("CLS");
@@ -146,68 +140,89 @@ void draw()
     }
 
     cout << "\n";
-    cout << "Creature health:" << setw(creature.getHealth() + (streamsize)1) << setfill('#') << " " << creature.getHealth();
-    cout << " Energy:" << setw(creature.getEnergy() + (streamsize)1) << setfill('#') << " " << creature.getEnergy();
-    cout << "\n";
-    if (creature.getState() == CAlert)
+    creatureNum = 0;
+    for (int i = 0; i < creatureTotal; i++)
     {
-        if (creature.getHeroDirection() == Beside)
+        if (creature[i].getState() == CDeath)
         {
-            cout << "The creature is beside you.";
+            continue;
         }
-        else
+        creatureNum++;
+        cout << "Creature health:" << setw(creature[i].getHealth() + (streamsize)1) << setfill('#') << " " << creature[i].getHealth();
+        cout << " Energy:" << setw(creature[i].getEnergy() + (streamsize)1) << setfill('#') << " " << creature[i].getEnergy();
+        cout << " ";
+        if (creature[i].getState() == CAlert)
         {
-            cout << "Hero is in the ";
-            switch (creature.getHeroDirection())
+            if (creature[i].getHeroDirection() == Beside)
             {
-            case East:
-                cout << "east";
-                break;
-            case West:
-                cout << "west";
-                break;
-            case North:
-                cout << "north";
-                break;
-            case South:
-                cout << "south";
-                break;
-            case NorthEast:
-                cout << "northeast";
-                break;
-            case SouthEast:
-                cout << "southeast";
-                break;
-            case NorthWest:
-                cout << "northwest";
-                break;
-            case SouthWest:
-                cout << "southwest";
-                break;
+                cout << "The creature is beside you.";
+            }
+            else
+            {
+                cout << "Hero is in the ";
+                switch (creature[i].getHeroDirection())
+                {
+                case East:
+                    cout << "east";
+                    break;
+                case West:
+                    cout << "west";
+                    break;
+                case North:
+                    cout << "north";
+                    break;
+                case South:
+                    cout << "south";
+                    break;
+                case NorthEast:
+                    cout << "northeast";
+                    break;
+                case SouthEast:
+                    cout << "southeast";
+                    break;
+                case NorthWest:
+                    cout << "northwest";
+                    break;
+                case SouthWest:
+                    cout << "southwest";
+                    break;
+                }
             }
         }
+        cout << "\n";
     }
+    cout << "There are only " << creatureNum << " Creatures left." << "\n";
 }
 
 void gameOver()
 {
-    if (hero.getState() == HDeath)
+    if (!hero.isLive())
     {
         gameState = GAMEOVER;
         draw();
         cout << "\n";
         cout << "---------Game Over---------\n";
     }
-    else if (creature.getState() == CDeath)
+    return;
+
+    gameState = GAMEOVER;
+    for (int i = 0; i < creatureTotal; i++)
     {
-        gameState = GAMEOVER;
+        if (creature[i].isLive())
+        {
+            gameState = GAMING;
+        }
+    }
+    
+    if (gameState == GAMEOVER)
+    {
         draw();
         cout << "\n";
         cout << "----------You win----------\n";
     }
 }
 
-void trackHero(int heroX, int heroY, int creatureX, int creatureY)
+void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& creatureT)
 {
     std::queue<Point> place;
     int dir;
@@ -220,13 +235,19 @@ void trackHero(int heroX, int heroY, int creatureX, int creatureY)
     }
 
     bool find = false;
+    vector<vector<bool> > flag;
+    for (int j = 0; j < dungeon.getHeight(); j++)
+    {
+        flag.push_back(vector<bool>(dungeon.getWidth(), false));
+    }
     while (!find)
     {
         for (int i = 0; i < 4; i++)
         {
             dir = (dir + 1 + 4) % 4;
-            if (!dungeon.isBoundary(place.front().X + dx[dir], place.front().Y + dy[dir]) && !dungeon.isObstacle(place.front().X + dx[dir], place.front().Y + dy[dir]))
+            if (!dungeon.isBoundary(place.front().X + dx[dir], place.front().Y + dy[dir]) && !dungeon.isObstacle(place.front().X + dx[dir], place.front().Y + dy[dir]) && !flag[place.front().Y + dy[dir]][place.front().X + dx[dir]])
             {
+                flag[place.front().Y + dy[dir]][place.front().X + dx[dir]] = true;
                 if (place.front().X + dx[dir] == creatureX && place.front().Y + dy[dir] == creatureY)
                 {
                     find = true;
@@ -237,62 +258,78 @@ void trackHero(int heroX, int heroY, int creatureX, int creatureY)
         }
         place.pop();
     }
-    creature.move(-dx[dir], -dy[dir]);
+    creatureT.move(-dx[dir], -dy[dir]);
     place.empty();
+    flag.empty();
 }
 
 void update(bool key[])
 {
-    int _x = 0, _y = 0;
-    if (key[W])
+    if (gameState == GAMING)
     {
-        _x = 0;
-        _y = -1;
-    }
-    else if (key[S])
-    {
-        _x = 0;
-        _y = 1;
-    }
-    else if (key[A])
-    {
-        _x = -1;
-        _y = 0;
-    }
-    else if (key[D])
-    {
-        _x = 1;
-        _y = 0;
-    }
-    else if (key[SPACE])
-    {
-        creature.hurt(hero.slash(creature.getX(), creature.getY()));
-    }
-    else
-    {
-        return;
-    }
-    gameOver();
-    if (gameState == GAMEOVER)
-    {
-        return;
-    }
+        int _x = 0, _y = 0;
+        if (key[W])
+        {
+            _x = 0;
+            _y = -1;
+        }
+        else if (key[S])
+        {
+            _x = 0;
+            _y = 1;
+        }
+        else if (key[A])
+        {
+            _x = -1;
+            _y = 0;
+        }
+        else if (key[D])
+        {
+            _x = 1;
+            _y = 0;
+        }
+        else if (key[SPACE])
+        {
+            for (int i = 0; i < creatureTotal; i++)
+            {
+                if (creature[i].isLive())
+                {
+                    creature[i].hurt(hero.slash(creature[i].getX(), creature[i].getY()));
+                }
+            }
+        }
+        else
+        {
+            return;
+        }
+        gameOver();
+        if (gameState == GAMEOVER)
+        {
+            return;
+        }
 
-    if (!dungeon.isBoundary(hero.getX() + _x, hero.getY() + _y) &&!dungeon.isObstacle(hero.getX() + _x, hero.getY() + _y))
-    {
-        hero.move(_x, _y);
-    }
+        if (!dungeon.isBoundary(hero.getX() + _x, hero.getY() + _y) && !dungeon.isObstacle(hero.getX() + _x, hero.getY() + _y))
+        {
+            hero.move(_x, _y);
+        }
 
-    creature.seeHero(hero.getX(), hero.getY());
-    if (creature.getState() == CAlert)
-    {
-        trackHero(hero.getX(), hero.getY(), creature.getX(), creature.getY());
-    }
-    creature.seeHero(hero.getX(), hero.getY());
+        for (int i = 0; i < creatureTotal; i++)
+        {
+            if (creature[i].isLive())
+            {
+                creature[i].seeHero(hero.getX(), hero.getY());
+                if (creature[i].getState() == CAlert)
+                {
+                    trackHero(hero.getX(), hero.getY(), creature[i].getX(), creature[i].getY(), creature[i]);
+                }
+                creature[i].seeHero(hero.getX(), hero.getY());
 
-    if (hero.touchCreature(creature.getX(), creature.getY()))
-    {
-        hero.hurt(creature.damage());
+                if (hero.touchCreature(creature[i].getX(), creature[i].getY()))
+                {
+                    hero.hurt(creature[i].damage());
+                }
+            }
+        }
     }
     draw();
     gameOver();
@@ -303,6 +340,7 @@ void menu()
     cout << "Quick game please press 1.\n";
     cout << "Load game please press 2.\n";
     cout << "Custom game please press 3.\n";
+    vector<Point> point;
     while (true)
     {
         char choose = _getch();
@@ -312,8 +350,15 @@ void menu()
             dungeon.generateMap();
             dungeon.printMap();
             hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-            creature.setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-            dungeon.generateTerrain(hero.getX(), hero.getY(), creature.getX(), creature.getY());
+            creatureTotal = defaultCreatureNum;
+            creatureNum = creatureTotal;
+            for (int i = 0; i < creatureTotal; i++)
+            {
+                creature.push_back(Creature());
+                creature[i].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+                point.push_back(Point(creature[i].getX(), creature[i].getY()));
+            }
+            dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
             draw();
             return;
         case '2':
@@ -322,7 +367,10 @@ void menu()
             dungeon.inputMap();
             dungeon.printMap();
             hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
-            creature.setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
+            creatureTotal = 1;
+            creatureNum = creatureTotal;
+            creature.push_back(Creature());
+            creature[0].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
             draw();
             bool confirmTerrain = false;
             std::cout << "Do you want to generate terrain? (y/n): ";
@@ -333,7 +381,7 @@ void menu()
                     choose = _getch();
                     if (choose == 'Y' || choose == 'y')
                     {
-                        dungeon.generateTerrain(hero.getX(), hero.getY(), creature.getX(), creature.getY());
+                        dungeon.generateTerrain(hero.getX(), hero.getY(), creature[0].getX(), creature[0].getY());
                         break;
                     }
                     else if (choose == 'N' || choose == 'n')
@@ -359,12 +407,12 @@ int main()
 {
     srand(time(NULL));
     menu();
-    
-    gameState = GAMING;
+    gameState = PREPARING;
 
     bool key[6];
 
     update(key);
+    gameState = GAMING;
     do
     {
         getKey(key);
