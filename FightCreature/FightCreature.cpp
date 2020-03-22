@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <iomanip>
 #include <string>
+#include <ctime>
 #include <vector>
 #include <queue>
 #include <conio.h>		// _getch() <= to read input without enter "ENTER" key
@@ -19,7 +20,7 @@ Creature creature;
 int gameState;
 vector<string> screen;
 
-enum keyState
+enum KeyState
 {
     ESC,
     W,
@@ -34,6 +35,13 @@ enum GameState
 {
     GAMING,
     GAMEOVER
+};
+
+enum GameMode
+{
+    QuickGame = 1,
+    LoadGame = 2,
+    CustomGame = 3
 };
 
 void getKey(bool key[])
@@ -260,6 +268,10 @@ void update(bool key[])
     {
         creature.hurt(hero.slash(creature.getX(), creature.getY()));
     }
+    else
+    {
+        return;
+    }
     gameOver();
     if (gameState == GAMEOVER)
     {
@@ -286,48 +298,68 @@ void update(bool key[])
     gameOver();
 }
 
-int main()
+void menu()
 {
-    dungeon.inputMap();
-    dungeon.printMap();
-    hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight());
-    creature.setCreatureLocation(dungeon.getWidth(), dungeon.getHeight());
-    draw();
-    char choose;
-    std::cout << "Do you want to generate terrain?(y/n): ";
+    cout << "Quick game please press 1.\n";
+    cout << "Load game please press 2.\n";
+    cout << "Custom game please press 3.\n";
     while (true)
     {
-        choose = _getch();
-        if (choose == 'Y' || choose == 'y')
+        char choose = _getch();
+        switch (choose)
         {
-            dungeon.generateTerrain();
-            break;
-        }
-        else if (choose == 'N' || choose == 'n')
-        {
-            break;
-        }
-    }
-    dungeon.searchPath(hero.getX(), hero.getY(), creature.getX(), creature.getY());
-    switch (rand() % 6)
-    {
-    case 0:
-        dungeon.searchPath(1, 1, dungeon.getWidth() - 2, dungeon.getHeight() - 2);
-        break;
-    case 1:
-        dungeon.searchPath(1, 1, 1, dungeon.getHeight() - 2);
-        break;
-    case 2:
-        dungeon.searchPath(1, 1, dungeon.getWidth() - 2, 1);
-        break;
-    case 3:
-        dungeon.searchPath(dungeon.getWidth() - 2, 1, dungeon.getWidth() - 2, dungeon.getHeight() - 2);
-        break;
-    case 4:
-        dungeon.searchPath(1, dungeon.getHeight() - 2, dungeon.getWidth() - 2, dungeon.getHeight() - 2);
-        break;
-    }
+        case '1':
+            dungeon.generateMap();
+            dungeon.printMap();
+            hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+            creature.setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+            dungeon.generateTerrain(hero.getX(), hero.getY(), creature.getX(), creature.getY());
+            draw();
+            return;
+        case '2':
+            return;
+        case '3':
+            dungeon.inputMap();
+            dungeon.printMap();
+            hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
+            creature.setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
+            draw();
+            bool confirmTerrain = false;
+            std::cout << "Do you want to generate terrain? (y/n): ";
+            while (!confirmTerrain)
+            {
+                while (true)
+                {
+                    choose = _getch();
+                    if (choose == 'Y' || choose == 'y')
+                    {
+                        dungeon.generateTerrain(hero.getX(), hero.getY(), creature.getX(), creature.getY());
+                        break;
+                    }
+                    else if (choose == 'N' || choose == 'n')
+                    {
+                        confirmTerrain = true;
+                        break;
+                    }
+                }
 
+                if (!confirmTerrain)
+                {
+                    draw();
+                    cout << "Do you want to regenerate terrain? (y/n): ";
+                }
+            }
+            
+            return;
+        }
+    }
+}
+
+int main()
+{
+    srand(time(NULL));
+    menu();
+    
     gameState = GAMING;
 
     bool key[6];

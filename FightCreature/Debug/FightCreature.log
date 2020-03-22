@@ -1,3 +1,6 @@
-﻿  FightCreature.cpp
-D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(233,16): warning C4834: discarding return value of function with 'nodiscard' attribute
+﻿  Dungeon.cpp
+  FightCreature.cpp
+D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(241,16): warning C4834: discarding return value of function with 'nodiscard' attribute
+D:\Programming\C++GameLab\B班程式\FightCreature\FightCreature\FightCreature.cpp(360,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating Code...
   FightCreature.vcxproj -> D:\Programming\C++GameLab\B班程式\FightCreature\Debug\FightCreature.exe

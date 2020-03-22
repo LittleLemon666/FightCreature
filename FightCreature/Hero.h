@@ -25,7 +25,7 @@ private:
 	int swordDirection = SSouth;
 
 public:
-	void setHeroLocation(int dungeonWidth, int dungeonHeight);
+	void setHeroLocation(int dungeonWidth, int dungeonHeight, int mode);
 	int getX();
 	int getY();
 	int getState();

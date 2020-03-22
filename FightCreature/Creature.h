@@ -32,7 +32,7 @@ private:
 	int energy = 1;
 
 public:
-	void setCreatureLocation(int dungeonWidth, int dungeonHeight);
+	void setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode);
 	void seeHero(int heroX, int heroY);
 	int damage();
 	int getX();

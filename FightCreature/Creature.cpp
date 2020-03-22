@@ -1,34 +1,45 @@
 #include <iostream>
 #include "Creature.h"
 
-void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight)
+void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode)
 {
-	std::cout << "\n";
-	std::cout << "Set creature's location\n";
-	bool valid;
-	do
+	switch (mode)
 	{
-		valid = true;
-		std::cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
-		std::cin >> x;
-		if (x < 1 || x >= dungeonWidth)
+	case 1:
+		x = rand() % (dungeonWidth - 1) + 1;
+		y = rand() % (dungeonHeight - 1) + 1;
+		break;
+	case 2:
+		break;
+	case 3:
+		std::cout << "\n";
+		std::cout << "Set creature's location\n";
+		bool valid;
+		do
 		{
-			valid = false;
-			std::cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
-		}
-	} while (!valid);
+			valid = true;
+			std::cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
+			std::cin >> x;
+			if (x < 1 || x >= dungeonWidth)
+			{
+				valid = false;
+				std::cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
+			}
+		} while (!valid);
 
-	do
-	{
-		valid = true;
-		std::cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
-		std::cin >> y;
-		if (y < 1 || y >= dungeonHeight)
+		do
 		{
-			valid = false;
-			std::cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
-		}
-	} while (!valid);
+			valid = true;
+			std::cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
+			std::cin >> y;
+			if (y < 1 || y >= dungeonHeight)
+			{
+				valid = false;
+				std::cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
+			}
+		} while (!valid);
+		break;
+	}
 }
 
 void Creature::seeHero(int heroX, int heroY)
