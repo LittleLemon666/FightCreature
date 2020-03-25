@@ -23,6 +23,8 @@ private:
 	int attack = 3;
 	int state = HLive;
 	int swordDirection = SSouth;
+	int experience = 0;
+	int level = 1;
 
 public:
 	void setHeroLocation(int dungeonWidth, int dungeonHeight, int mode);
@@ -32,9 +34,13 @@ public:
 	int getState();
 	int getSwordDirection();
 	int getHealth();
+	int getExperience();
+	int getLevel();
 	bool touchCreature(int creatureX, int creatureY);
 	void hurt(int damage);
 	void move(int _x, int _y);
 	int slash(int creatureX, int creatureY);
 	bool isLive();
+	void getExp(int exp);
+	void information();
 };

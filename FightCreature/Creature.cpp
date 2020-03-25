@@ -2,6 +2,7 @@
 #include <vector>
 #include <sstream>
 #include "Creature.h"
+using namespace std;
 
 void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode)
 {
@@ -14,39 +15,39 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 	case 2:
 		break;
 	case 3:
-		std::cout << "\n";
-		std::cout << "Set creature's location\n";
+		cout << "\n";
+		cout << "Set creature's location\n";
 		bool valid;
 		do
 		{
 			valid = true;
-			std::cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
-			std::cin >> x;
+			cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
+			cin >> x;
 			if (x < 1 || x >= dungeonWidth)
 			{
 				valid = false;
-				std::cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
 			}
 		} while (!valid);
 
 		do
 		{
 			valid = true;
-			std::cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
-			std::cin >> y;
+			cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
+			cin >> y;
 			if (y < 1 || y >= dungeonHeight)
 			{
 				valid = false;
-				std::cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
 			}
 		} while (!valid);
 		break;
 	}
 }
 
-int Creature::setCreatureLocation(std::vector<std::string> lineString, int lineIndex)
+int Creature::setCreatureLocation(vector<string> lineString, int lineIndex)
 {
-	std::stringstream ss;
+	stringstream ss;
 	ss << lineString[lineIndex++];
 	ss >> x >> y >> health >> attack >> energy;
 	return lineIndex;
@@ -120,13 +121,15 @@ int Creature::getY()
 	return y;
 }
 
-void Creature::hurt(int damage)
+int Creature::hurt(int damage)
 {
 	health -= damage;
 	if (health <= 0)
 	{
 		state = CDeath;
+		return exp;
 	}
+	return 0;
 }
 
 int Creature::getState()

@@ -1,7 +1,9 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <sstream>
 #include "Hero.h"
+using namespace std;
 
 void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
 {
@@ -14,39 +16,39 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 	case 2:
 		break;
 	case 3:
-		std::cout << "\n";
-		std::cout << "Set hero's location\n";
+		cout << "\n";
+		cout << "Set hero's location\n";
 		bool valid;
 		do
 		{
 			valid = true;
-			std::cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
-			std::cin >> x;
+			cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
+			cin >> x;
 			if (x < 1 || x >= dungeonWidth)
 			{
 				valid = false;
-				std::cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
 			}
 		} while (!valid);
 
 		do
 		{
 			valid = true;
-			std::cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
-			std::cin >> y;
+			cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
+			cin >> y;
 			if (y < 1 || y >= dungeonHeight)
 			{
 				valid = false;
-				std::cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
 			}
 		} while (!valid);
 		break;
 	}
 }
 
-int Hero::setHeroLocation(std::vector<std::string> lineString, int lineIndex)
+int Hero::setHeroLocation(vector<string> lineString, int lineIndex)
 {
-	std::stringstream ss;
+	stringstream ss;
 	ss << lineString[lineIndex++];
 	ss >> x >> y >> health >> attack;
 	return lineIndex;
@@ -75,6 +77,16 @@ int Hero::getState()
 int Hero::getHealth()
 {
 	return health;
+}
+
+int Hero::getExperience()
+{
+	return experience;
+}
+
+int Hero::getLevel()
+{
+	return level;
 }
 
 bool Hero::touchCreature(int creatureX, int creatureY)
@@ -153,4 +165,37 @@ int Hero::slash(int creatureX, int creatureY)
 bool Hero::isLive()
 {
 	return state != HDeath;
+}
+
+void Hero::getExp(int exp)
+{
+	experience += exp;
+	while (experience >= level * (level - 1) + level)
+	{
+		experience -= level * (level - 1) + level;
+		level++;
+	}
+}
+
+void Hero::information()
+{
+	cout << "Hero health:" << setw(health + (streamsize)1) << setfill('#') << " " << health << " ";
+	cout << "Exp: " << experience << " Level: " << level;
+	cout << " Hero is facing ";
+	switch (swordDirection)
+	{
+	case SNorth:
+		cout << "North";
+		break;
+	case SSouth:
+		cout << "South";
+		break;
+	case SEast:
+		cout << "East";
+		break;
+	case SWest:
+		cout << "West";
+		break;
+	}
+	cout << "\n";
 }

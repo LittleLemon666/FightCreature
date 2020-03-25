@@ -13,6 +13,7 @@
 #include "Creature.h"
 #include "Point.h"
 #define defaultCreatureNum 5
+#define defaultCreatureSpeed 500
 using namespace std;
 using std::ifstream;
 
@@ -22,9 +23,9 @@ int dy[] = { -1, 1, 0, 0 };
 Dungeon dungeon;
 Hero hero;
 vector<Creature> creature;
-int creatureTotal;
-int creatureNum;
-int gameState;
+static int creatureTotal;
+static int creatureNum;
+static int gameState;
 vector<string> screen;
 
 enum KeyState
@@ -86,62 +87,8 @@ void getKey(bool key[])
     }
 }
 
-void draw()
+void creatureInformation()
 {
-    screen = dungeon.outMap();
-    if (hero.isLive())
-    {
-        screen[hero.getY()][hero.getX()] = 'H';
-    }
-    for (int i = 0; i < creatureTotal; i++)
-    {
-        if (creature[i].isLive())
-        {
-            if (creature[i].getHeroDirection() == Unknown)
-            {
-                screen[creature[i].getY()][creature[i].getX()] = 'C';
-            }
-            else
-            {
-                screen[creature[i].getY()][creature[i].getX()] = '!';
-            }
-        }
-    }
-
-    system("CLS");
-    //information
-    cout << "Press WASD to control Hero(icon H).\n";
-    cout << "Press Space to attack Creature(icon C).\n";
-    cout << "Press ESC to exit the game.\n";
-    cout << "Avoid touch Creature or Hero will be damage.\n";
-    cout << "The direction of the sword that Hero taking is on where Hero facing.\n";
-    cout << "Use Hero's sword to knock out the Creature!\n";
-    cout << "\n";
-
-    for (string line : screen)
-    {
-        cout << line;
-    }
-    cout << "\n";
-    cout << "Hero health:" << setw(hero.getHealth() + (streamsize)1) << setfill('#') << " " << hero.getHealth();
-    cout << " Hero is facing ";
-    switch (hero.getSwordDirection())
-    {
-    case SNorth:
-        cout << "North";
-        break;
-    case SSouth:
-        cout << "South";
-        break;
-    case SEast:
-        cout << "East";
-        break;
-    case SWest:
-        cout << "West";
-        break;
-    }
-
-    cout << "\n";
     creatureNum = 0;
     for (int i = 0; i < creatureTotal; i++)
     {
@@ -196,7 +143,51 @@ void draw()
     cout << "There are only " << creatureNum << " Creatures left." << "\n";
 }
 
-void gameOver()
+void gameInformation()
+{
+    cout << "Press WASD to control Hero(icon H).\n";
+    cout << "Press Space to attack Creature(icon C).\n";
+    cout << "Press ESC to exit the game.\n";
+    cout << "Avoid touch Creature or Hero will be damage.\n";
+    cout << "The direction of the sword that Hero taking is on where Hero facing.\n";
+    cout << "Use Hero's sword to knock out the Creature!\n";
+    cout << "\n";
+}
+
+void draw()
+{
+    screen = dungeon.outMap();
+    if (hero.isLive())
+    {
+        screen[hero.getY()][hero.getX()] = 'H';
+    }
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (creature[i].isLive())
+        {
+            if (creature[i].getHeroDirection() == Unknown)
+            {
+                screen[creature[i].getY()][creature[i].getX()] = 'C';
+            }
+            else
+            {
+                screen[creature[i].getY()][creature[i].getX()] = '!';
+            }
+        }
+    }
+
+    system("CLS");
+    gameInformation();
+    for (string line : screen)
+    {
+        cout << line;
+    }
+    cout << "\n";
+    hero.information();
+    creatureInformation();
+}
+
+void isGameOver()
 {
     if (!hero.isLive())
     {
@@ -227,7 +218,7 @@ void gameOver()
 
 void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& creatureT)
 {
-    std::queue<Point> place;
+    queue<Point> place;
     int dir;
     for (dir = 0; dir < 4; dir++)
     {
@@ -266,6 +257,27 @@ void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& cre
     flag.empty();
 }
 
+void creaturesTurn()
+{
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (creature[i].isLive())
+        {
+            creature[i].seeHero(hero.getX(), hero.getY());
+            if (creature[i].getState() == CAlert)
+            {
+                trackHero(hero.getX(), hero.getY(), creature[i].getX(), creature[i].getY(), creature[i]);
+            }
+            creature[i].seeHero(hero.getX(), hero.getY());
+
+            if (hero.touchCreature(creature[i].getX(), creature[i].getY()))
+            {
+                hero.hurt(creature[i].damage());
+            }
+        }
+    }
+}
+
 void update(bool key[])
 {
     if (gameState == GAMING)
@@ -297,7 +309,7 @@ void update(bool key[])
             {
                 if (creature[i].isLive())
                 {
-                    creature[i].hurt(hero.slash(creature[i].getX(), creature[i].getY()));
+                    hero.getExp(creature[i].hurt(hero.slash(creature[i].getX(), creature[i].getY())));
                 }
             }
         }
@@ -305,7 +317,7 @@ void update(bool key[])
         {
             return;
         }
-        gameOver();
+        isGameOver();
         if (gameState == GAMEOVER)
         {
             return;
@@ -315,27 +327,7 @@ void update(bool key[])
         {
             hero.move(_x, _y);
         }
-
-        for (int i = 0; i < creatureTotal; i++)
-        {
-            if (creature[i].isLive())
-            {
-                creature[i].seeHero(hero.getX(), hero.getY());
-                if (creature[i].getState() == CAlert)
-                {
-                    trackHero(hero.getX(), hero.getY(), creature[i].getX(), creature[i].getY(), creature[i]);
-                }
-                creature[i].seeHero(hero.getX(), hero.getY());
-
-                if (hero.touchCreature(creature[i].getX(), creature[i].getY()))
-                {
-                    hero.hurt(creature[i].damage());
-                }
-            }
-        }
     }
-    draw();
-    gameOver();
 }
 
 void menu()
@@ -402,7 +394,7 @@ void menu()
             creature[0].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
             draw();
             bool confirmTerrain = false;
-            std::cout << "Do you want to generate terrain? (y/n): ";
+            cout << "Do you want to generate terrain? (y/n): ";
             while (!confirmTerrain)
             {
                 while (true)
@@ -438,14 +430,27 @@ int main()
     menu();
     gameState = PREPARING;
 
-    bool key[6];
+    bool key[6] = { false };
 
     update(key);
     gameState = GAMING;
+    clock_t begin = clock();
+    clock_t end;
     do
     {
-        getKey(key);
-        update(key);
+        if (_kbhit())
+        {
+            getKey(key);
+            update(key);
+        }
+        end = clock();
+        if (end - begin > defaultCreatureSpeed)
+        {
+            creaturesTurn();
+            begin = clock();
+        }
+        draw();
+        isGameOver();
     }while (!key[ESC] && gameState != GAMEOVER);
 
     return 0;

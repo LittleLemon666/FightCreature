@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include "Dungeon.h"
+using namespace std;
 
 int Dungeon::getWidth()
 {
@@ -48,7 +49,7 @@ bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int p, in
 	return searchPath(nowX + dx[dir], nowY + dy[dir], targetX, targetY, p + 1, pStop);
 }
 
-void Dungeon::generateTerrain(int heroX, int heroY, std::vector<Point> point, int creatureNum)
+void Dungeon::generateTerrain(int heroX, int heroY, vector<Point> point, int creatureNum)
 {
 	for (int _y = 1; _y < height - 1; _y++)
 	{
@@ -58,7 +59,7 @@ void Dungeon::generateTerrain(int heroX, int heroY, std::vector<Point> point, in
 		}
 	}
 
-	std::cout << "Loading";
+	cout << "Loading";
 	for (int i = 0; i < creatureNum; i++)
 	{
 		while (true)
@@ -67,7 +68,7 @@ void Dungeon::generateTerrain(int heroX, int heroY, std::vector<Point> point, in
 			{
 				break;
 			}
-			std::cout << ".";
+			cout << ".";
 		}
 	}
 }
@@ -82,40 +83,40 @@ void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY
 		}
 	}
 
-	std::cout << "Loading";
+	cout << "Loading";
 	while (true)
 	{
 		if (searchPath(heroX, heroY, creatureX, creatureY, 0, pow(heroX - creatureX, 2) + pow(heroY - creatureY, 2)))
 		{
 			break;
 		}
-		std::cout << ".";
+		cout << ".";
 	}
 }
 
 void Dungeon::generateMap()
 {
-	std::stringstream ss;
-	ss << std::setw(width + (std::streamsize)1) << std::setfill(wall) << "\n";
-	std::string stringTemp = ss.str();
+	stringstream ss;
+	ss << setw(width + (streamsize)1) << setfill(wall) << "\n";
+	string stringTemp = ss.str();
 	ss.str("");
 	dungeonMap.push_back(stringTemp);
 	for (int y = 1; y < height - 1; y++)
 	{
-		ss << wall << std::setw(width - (std::streamsize)1) << std::setfill(floor) << wall << "\n";
+		ss << wall << setw(width - (streamsize)1) << setfill(floor) << wall << "\n";
 		stringTemp = ss.str();
 		ss.str("");
 		dungeonMap.push_back(stringTemp);
 	}
-	ss << std::setw(width + (std::streamsize)1) << std::setfill(wall) << "\n";
+	ss << setw(width + (streamsize)1) << setfill(wall) << "\n";
 	stringTemp = ss.str();
 	ss.str("");
 	dungeonMap.push_back(stringTemp);
 }
 
-int Dungeon::loadMap(std::vector<std::string> lineString)
+int Dungeon::loadMap(vector<string> lineString)
 {
-	std::stringstream ss;
+	stringstream ss;
 	ss << lineString[0];
 	ss >> height >> width;
 	int lineIndex = 1;
@@ -128,17 +129,17 @@ int Dungeon::loadMap(std::vector<std::string> lineString)
 
 void Dungeon::inputMap()
 {
-	std::cout << "Creating Map...\n";
-	std::cout << "input height:";
-	std::cin >> height;
-	std::cout << "input width:";
-	std::cin >> width;
-	std::cout << "input style of wall:";
-	std::cin >> wall;
-	std::cout << "input style of floor:";
-	std::string stringTemp;
-	std::cin.ignore();
-	getline(std::cin, stringTemp);
+	cout << "Creating Map...\n";
+	cout << "input height:";
+	cin >> height;
+	cout << "input width:";
+	cin >> width;
+	cout << "input style of wall:";
+	cin >> wall;
+	cout << "input style of floor:";
+	string stringTemp;
+	cin.ignore();
+	getline(cin, stringTemp);
 	floor = stringTemp[0];
 
 	generateMap();
@@ -146,9 +147,9 @@ void Dungeon::inputMap()
 
 void Dungeon::printMap()
 {
-	for (std::string line : dungeonMap)
+	for (string line : dungeonMap)
 	{
-		std::cout << line;
+		cout << line;
 	}
 }
 
@@ -157,7 +158,7 @@ char Dungeon::getFloor()
 	return floor;
 }
 
-std::vector<std::string> Dungeon::outMap()
+vector<string> Dungeon::outMap()
 {
 	return dungeonMap;
 }

@@ -30,6 +30,7 @@ private:
 	int state = CLive;
 	int heroDirection = Unknown;
 	int energy = 1;
+	int exp = 1;
 
 public:
 	void setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode);
@@ -38,7 +39,7 @@ public:
 	int damage();
 	int getX();
 	int getY();
-	void hurt(int damage);
+	int hurt(int damage);
 	int getState();
 	int getHealth();
 	void move(int _x, int _y);
