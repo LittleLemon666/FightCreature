@@ -46,11 +46,13 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 	}
 }
 
-int Hero::setHeroLocation(vector<string> lineString, int lineIndex)
+int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lineIndex)
 {
+	x = _x;
+	y = _y;
 	stringstream ss;
 	ss << lineString[lineIndex++];
-	ss >> x >> y >> health >> attack;
+	ss >> health >> attack >> experience >> level;
 	return lineIndex;
 }
 

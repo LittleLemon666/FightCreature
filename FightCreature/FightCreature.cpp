@@ -103,6 +103,89 @@ void getKey(bool key[])
     }
 }
 
+class LoadFCF
+{
+public:
+    static LPWSTR ConvertString(const std::string& instr)
+    {
+        //Author: scruffybear
+        //URL: https://xionghuilin.com/c-convert-between-string-and-cstring-lpwstr/
+
+        // Assumes std::string is encoded in the current Windows ANSI codepage
+        int bufferlen = ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), NULL, 0);
+
+        if (bufferlen == 0)
+        {
+            // Something went wrong. Perhaps, check GetLastError() and log.
+            return 0;
+        }
+
+        // Allocate new LPWSTR - must deallocate it later
+        LPWSTR widestr = new WCHAR[bufferlen + 1];
+
+        ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), widestr, bufferlen);
+
+        // Ensure wide string is null terminated
+        widestr[bufferlen] = 0;
+
+        // Do something with widestr
+        return widestr;
+        //delete[] widestr;
+    }
+
+    static bool cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage = CP_ACP)
+    {
+        //Author: ArkM
+        //URL: https://www.daniweb.com/programming/software-development/threads/155420/lpwstr-to-std-string-help
+
+        bool res = false;
+        char* p = 0;
+        int bsz;
+        bsz = WideCharToMultiByte(codepage,
+            0,
+            pw, -1,
+            0, 0,
+            0, 0);
+        if (bsz > 0) {
+            p = new char[bsz];
+            int rc = WideCharToMultiByte(codepage,
+                0,
+                pw, -1,
+                p, bsz,
+                0, 0);
+            if (rc != 0) {
+                p[bsz - 1] = 0;
+                s = p;
+                res = true;
+            }
+        }
+        delete[] p;
+        return res;
+    }
+
+    static void read_directory(const std::string& path, vector<string>& filePathes) //write map in this function
+    {
+        //Author: MARTIN
+        //URL: http://www.martinbroadhurst.com/list-the-files-in-a-directory-in-c.html
+
+        std::string pattern(path);
+        pattern.append("\\*.fcf");
+        string s;
+        WIN32_FIND_DATA data;
+        HANDLE hFind = FindFirstFile(ConvertString(pattern.c_str()), &data);
+        do {
+            cvtLPW2stdstring(s, data.cFileName);
+            if (s.length() == 0 || s[0] == '?')
+            {
+                break;
+            }
+            cout << s << "\n";
+            filePathes.push_back(path + "\\" + s);
+        } while (FindNextFile(hFind, &data) != 0);
+        FindClose(hFind);
+    }
+};
+
 void creatureInformation()
 {
     creatureNum = 0;
@@ -379,61 +462,29 @@ void quickGame()
     draw();
 }
 
-LPWSTR ConvertString(const std::string& instr)
+bool findHeroLocation(int& heroX, string& stringT, char floor)
 {
-    //Author: scruffybear
-    //URL: https://xionghuilin.com/c-convert-between-string-and-cstring-lpwstr/
-
-    // Assumes std::string is encoded in the current Windows ANSI codepage
-    int bufferlen = ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), NULL, 0);
-
-    if (bufferlen == 0)
+    int x = stringT.find('H');
+    if (x == -1)
     {
-        // Something went wrong. Perhaps, check GetLastError() and log.
-        return 0;
+        return false;
     }
-
-    // Allocate new LPWSTR - must deallocate it later
-    LPWSTR widestr = new WCHAR[bufferlen + 1];
-
-    ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), widestr, bufferlen);
-
-    // Ensure wide string is null terminated
-    widestr[bufferlen] = 0;
-
-    // Do something with widestr
-    return widestr;
-    //delete[] widestr;
+    heroX = x;
+    stringT[heroX] = floor;
+    true;
 }
 
-bool cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage = CP_ACP)
+bool findCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor)
 {
-    //Author: ArkM
-    //URL: https://www.daniweb.com/programming/software-development/threads/155420/lpwstr-to-std-string-help
-
-    bool res = false;
-    char* p = 0;
-    int bsz;
-    bsz = WideCharToMultiByte(codepage,
-        0,
-        pw, -1,
-        0, 0,
-        0, 0);
-    if (bsz > 0) {
-        p = new char[bsz];
-        int rc = WideCharToMultiByte(codepage,
-            0,
-            pw, -1,
-            p, bsz,
-            0, 0);
-        if (rc != 0) {
-            p[bsz - 1] = 0;
-            s = p;
-            res = true;
-        }
+    int creatureX = stringT.find('C');
+    if (creatureX != -1)
+    {
+        creature.push_back(Creature());
+        creature[creatureTotal++].setCreatureLocation(creatureX, creatureY);
+        stringT[creatureX] = floor;
+        return true;
     }
-    delete[] p;
-    return res;
+    return false;
 }
 
 void loadMapInformation(string mapPath)
@@ -442,23 +493,37 @@ void loadMapInformation(string mapPath)
     string fileString, stringT;
     vector<string> lineString;
     stringstream ss;
-    int lineIndex = 0;
+    int lineIndex = 0, height, heroX = 1, heroY = 1;
+    char wall, floor;
+    creatureTotal = 0;
     inStream.open(mapPath);
+    getline(inStream, stringT);
+    lineString.push_back(stringT);
+    ss << stringT;
+    ss >> height >> height >> wall;
+    floor = stringT[(int)stringT.length() - 2];
     while (getline(inStream, stringT))
     {
         lineString.push_back(stringT);
     }
+    for (int y = 0; y < height; y++)
+    {
+        if (findHeroLocation(heroX, lineString[y + 1], floor))
+        {
+            heroY = y;
+        }
+        while (findCreatureLocation(creature, y, lineString[y + 1], floor));
+    }
     inStream.close();
     lineIndex = dungeon.loadMap(lineString);
-    
-    //lineIndex = hero.setHeroLocation(lineString, lineIndex);
-    //ss << lineString[lineIndex++];
-    //ss >> creatureTotal;
-    //for (int i = 0; i < creatureTotal; i++)
-    //{
-    //    creature.push_back(Creature());
-    //    lineIndex = creature[i].setCreatureLocation(lineString, lineIndex);
-    //}
+    lineIndex++;
+    lineIndex = hero.loadHeroInformation(heroX, heroY, lineString, lineIndex);
+    lineIndex++;
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        lineIndex = creature[i].setCreatureInformation(lineString, lineIndex);
+    }
+    cout << creatureTotal;
 }
 
 void preview(string mapPath)
@@ -481,35 +546,22 @@ void preview(string mapPath)
     ss.clear();
 }
 
-void read_directory(const std::string& path, vector<string>& filePathes) //write map in this function
-{
-    //Author: MARTIN
-    //URL: http://www.martinbroadhurst.com/list-the-files-in-a-directory-in-c.html
-
-    std::string pattern(path);
-    pattern.append("\\*.fcf");
-    string s;
-    WIN32_FIND_DATA data;
-    HANDLE hFind = FindFirstFile(ConvertString(pattern.c_str()), &data);
-    do {
-        cvtLPW2stdstring(s, data.cFileName);
-        cout << s << "\n";
-        filePathes.push_back(path + "\\" + s);
-    } while (FindNextFile(hFind, &data) != 0);
-    FindClose(hFind);
-}
-
-void loadGame()
+int loadGame()
 {
     vector<string> filePathes;
-    read_directory("map", filePathes);
+    LoadFCF::read_directory("map", filePathes);
 
     int fileIndex = 0;
     bool key[INVALID + 1] = { false };
     cout << filePathes.size() << " files loaded.\n";
+    if (filePathes.size() == 0)
+    {
+        cout << "No files were found!\n";
+        return 0;
+    }
     cout << "Please select a map with Left and Right:\n";
     preview(filePathes[fileIndex]);
-    cout << filePathes[fileIndex] << " \n";
+    cout << "-"<<filePathes[fileIndex] << " \n";
     cout << "Press Enter to select the map!";
     while (true)
     {
@@ -539,6 +591,7 @@ void loadGame()
     }
     loadMapInformation(filePathes[fileIndex]);
     draw();
+    return 1;
 }
 
 void customGame()
@@ -584,6 +637,7 @@ void menu()
     cout << "Quick game please press 1.\n";
     cout << "Load game please press 2.\n";
     cout << "Custom game please press 3.\n";
+    int result;
     while (true)
     {
         char choose = _getch();
@@ -595,7 +649,11 @@ void menu()
             return;
 
         case '2':
-            loadGame();
+            result = loadGame();
+            if (result == 0)
+            {
+                menu();
+            }
             return;
 
         case '3':
@@ -635,5 +693,11 @@ int main()
         isGameOver();
     }while (!key[ESC] && gameState != GAMEOVER);
 
+    cout << "Press ESC to leave.";
+    key[ESC] = false;
+    while (!key[ESC])
+    {
+        getKey(key);
+    }
     return 0;
 }

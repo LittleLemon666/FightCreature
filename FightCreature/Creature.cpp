@@ -45,11 +45,17 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 	}
 }
 
-int Creature::setCreatureLocation(vector<string> lineString, int lineIndex)
+void Creature::setCreatureLocation(int _x, int _y)
+{
+	x = _x;
+	y = _y;
+}
+
+int Creature::setCreatureInformation(vector<string>& stringLine, int lineIndex)
 {
 	stringstream ss;
-	ss << lineString[lineIndex++];
-	ss >> x >> y >> health >> attack >> energy;
+	ss << stringLine[lineIndex++];
+	ss >> health >> attack >> energy >> exp;
 	return lineIndex;
 }
 

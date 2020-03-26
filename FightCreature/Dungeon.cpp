@@ -118,12 +118,11 @@ int Dungeon::loadMap(vector<string> lineString)
 {
 	stringstream ss;
 	ss << lineString[0];
-	ss >> height >> width;
+	ss >> width >> height >> wall >> floor;
 	int lineIndex = 1;
 	for (; lineIndex - 1 < height; lineIndex++)
 	{
 		dungeonMap.push_back(lineString[lineIndex] + "\n");
-		cout << lineString[lineIndex] + "\n";
 	}
 	return lineIndex;
 }

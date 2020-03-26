@@ -30,9 +30,6 @@
     <ClCompile Include="Point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoadFCF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dungeon.h">
@@ -45,9 +42,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Point.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadFCF.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
