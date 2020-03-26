@@ -23,7 +23,7 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 			valid = true;
 			cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
 			cin >> x;
-			if (x < 1 || x >= dungeonWidth)
+			if (x < 1 || x >= dungeonWidth - 1)
 			{
 				valid = false;
 				cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
@@ -35,7 +35,7 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 			valid = true;
 			cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
 			cin >> y;
-			if (y < 1 || y >= dungeonHeight)
+			if (y < 1 || y >= dungeonHeight - 1)
 			{
 				valid = false;
 				cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
@@ -93,10 +93,10 @@ void Creature::seeHero(int heroX, int heroY)
 	}
 	else
 	{
-		heroDirection = Unknown;
+		heroDirection = NotFound;
 	}
 
-	if (heroDirection == Unknown)
+	if (heroDirection == NotFound)
 	{
 		state = CLive;
 	}

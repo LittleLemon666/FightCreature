@@ -1,6 +1,6 @@
 ﻿#include <iostream>
-#include <fstream>
 #include <iomanip>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <cstdlib>
@@ -8,12 +8,14 @@
 #include <vector>
 #include <queue>
 #include <conio.h>		// _getch() <= to read input without enter "ENTER" key
+#include <windows.h>    // LPWSTR ConvertString  cvtLPW2stdstring  read_directory
 #include "Dungeon.h"
 #include "Hero.h"
 #include "Creature.h"
 #include "Point.h"
 #define defaultCreatureNum 5
 #define defaultCreatureSpeed 500
+#define defaultHeroInvincibleTime 1000
 using namespace std;
 using std::ifstream;
 
@@ -26,6 +28,8 @@ vector<Creature> creature;
 static int creatureTotal;
 static int creatureNum;
 static int gameState;
+static clock_t InvincibleEnd;
+static clock_t InvincibleStart;
 vector<string> screen;
 
 enum KeyState
@@ -36,6 +40,9 @@ enum KeyState
     A,
     D,
     SPACE,
+    LA,
+    RA,
+    ENTER,
     INVALID
 };
 
@@ -83,6 +90,15 @@ void getKey(bool key[])
         break;
     case 27:
         key[ESC] = true;
+        break;
+    case 13:
+        key[ENTER] = true;
+        break;
+    case 75:
+        key[LA] = true;
+        break;
+    case 77:
+        key[RA] = true;
         break;
     }
 }
@@ -165,7 +181,7 @@ void draw()
     {
         if (creature[i].isLive())
         {
-            if (creature[i].getHeroDirection() == Unknown)
+            if (creature[i].getHeroDirection() == NotFound)
             {
                 screen[creature[i].getY()][creature[i].getX()] = 'C';
             }
@@ -218,6 +234,10 @@ void isGameOver()
 
 void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& creatureT)
 {
+    if (heroX == creatureX && heroY == creatureY)
+    {
+        return;
+    }
     queue<Point> place;
     int dir;
     for (dir = 0; dir < 4; dir++)
@@ -269,10 +289,21 @@ void creaturesTurn()
                 trackHero(hero.getX(), hero.getY(), creature[i].getX(), creature[i].getY(), creature[i]);
             }
             creature[i].seeHero(hero.getX(), hero.getY());
+        }
+    }
+}
 
-            if (hero.touchCreature(creature[i].getX(), creature[i].getY()))
+void heroBeDamaged()
+{
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (creature[i].isLive() && hero.touchCreature(creature[i].getX(), creature[i].getY()))
+        {
+            InvincibleStart = hero.hurt(creature[i].damage());
+            InvincibleEnd = clock();
+            if (InvincibleEnd - InvincibleStart > defaultHeroInvincibleTime)
             {
-                hero.hurt(creature[i].damage());
+                hero.vincible();
             }
         }
     }
@@ -330,95 +361,245 @@ void update(bool key[])
     }
 }
 
+void quickGame()
+{
+    vector<Point> point;
+    dungeon.generateMap();
+    dungeon.printMap();
+    hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+    creatureTotal = defaultCreatureNum;
+    creatureNum = creatureTotal;
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        creature.push_back(Creature());
+        creature[i].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+        point.push_back(Point(creature[i].getX(), creature[i].getY()));
+    }
+    dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
+    draw();
+}
+
+LPWSTR ConvertString(const std::string& instr)
+{
+    //Author: scruffybear
+    //URL: https://xionghuilin.com/c-convert-between-string-and-cstring-lpwstr/
+
+    // Assumes std::string is encoded in the current Windows ANSI codepage
+    int bufferlen = ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), NULL, 0);
+
+    if (bufferlen == 0)
+    {
+        // Something went wrong. Perhaps, check GetLastError() and log.
+        return 0;
+    }
+
+    // Allocate new LPWSTR - must deallocate it later
+    LPWSTR widestr = new WCHAR[bufferlen + 1];
+
+    ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), widestr, bufferlen);
+
+    // Ensure wide string is null terminated
+    widestr[bufferlen] = 0;
+
+    // Do something with widestr
+    return widestr;
+    //delete[] widestr;
+}
+
+bool cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage = CP_ACP)
+{
+    //Author: ArkM
+    //URL: https://www.daniweb.com/programming/software-development/threads/155420/lpwstr-to-std-string-help
+
+    bool res = false;
+    char* p = 0;
+    int bsz;
+    bsz = WideCharToMultiByte(codepage,
+        0,
+        pw, -1,
+        0, 0,
+        0, 0);
+    if (bsz > 0) {
+        p = new char[bsz];
+        int rc = WideCharToMultiByte(codepage,
+            0,
+            pw, -1,
+            p, bsz,
+            0, 0);
+        if (rc != 0) {
+            p[bsz - 1] = 0;
+            s = p;
+            res = true;
+        }
+    }
+    delete[] p;
+    return res;
+}
+
+void loadMapInformation(string mapPath)
+{
+    ifstream inStream;
+    string fileString, stringT;
+    vector<string> lineString;
+    stringstream ss;
+    int lineIndex = 0;
+    inStream.open(mapPath);
+    while (getline(inStream, stringT))
+    {
+        lineString.push_back(stringT);
+    }
+    inStream.close();
+    lineIndex = dungeon.loadMap(lineString);
+    
+    //lineIndex = hero.setHeroLocation(lineString, lineIndex);
+    //ss << lineString[lineIndex++];
+    //ss >> creatureTotal;
+    //for (int i = 0; i < creatureTotal; i++)
+    //{
+    //    creature.push_back(Creature());
+    //    lineIndex = creature[i].setCreatureLocation(lineString, lineIndex);
+    //}
+}
+
+void preview(string mapPath)
+{
+    ifstream inStream;
+    string stringT;
+    stringstream ss;
+    int mapWidth, mapHeight;
+    inStream.open(mapPath);
+    getline(inStream, stringT);
+    ss << stringT;
+    ss >> mapWidth >> mapHeight;
+    for (int y = 1; y - 1 < mapHeight;y++)
+    {
+        getline(inStream, stringT);
+        cout << stringT << "\n";
+    }
+    inStream.close();
+    ss.str("");
+    ss.clear();
+}
+
+void read_directory(const std::string& path, vector<string>& filePathes) //write map in this function
+{
+    //Author: MARTIN
+    //URL: http://www.martinbroadhurst.com/list-the-files-in-a-directory-in-c.html
+
+    std::string pattern(path);
+    pattern.append("\\*.fcf");
+    string s;
+    WIN32_FIND_DATA data;
+    HANDLE hFind = FindFirstFile(ConvertString(pattern.c_str()), &data);
+    do {
+        cvtLPW2stdstring(s, data.cFileName);
+        cout << s << "\n";
+        filePathes.push_back(path + "\\" + s);
+    } while (FindNextFile(hFind, &data) != 0);
+    FindClose(hFind);
+}
+
+void loadGame()
+{
+    vector<string> filePathes;
+    read_directory("map", filePathes);
+
+    int fileIndex = 0;
+    bool key[INVALID + 1] = { false };
+    cout << filePathes.size() << " files loaded.\n";
+    cout << "Please select a map with Left and Right:\n";
+    preview(filePathes[fileIndex]);
+    cout << filePathes[fileIndex] << " \n";
+    cout << "Press Enter to select the map!";
+    while (true)
+    {
+        getKey(key);
+        system("CLS");
+        if (key[ENTER])
+        {
+            break;
+        }
+        cout << "Please select a map with Left and Right:\n";
+        if (key[LA])
+        {
+            fileIndex--;
+        }
+        else if (key[RA])
+        {
+            fileIndex++;
+        }
+        else
+        {
+            continue;
+        }
+        fileIndex = (fileIndex + filePathes.size()) % filePathes.size();
+        preview(filePathes[fileIndex]);
+        cout << filePathes[fileIndex] << " \n";
+        cout << "Press Enter to select the map!";
+    }
+    loadMapInformation(filePathes[fileIndex]);
+    draw();
+}
+
+void customGame()
+{
+    dungeon.inputMap();
+    dungeon.printMap();
+    hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
+    creatureTotal = 1;
+    creatureNum = creatureTotal;
+    creature.push_back(Creature());
+    creature[0].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
+    draw();
+    bool confirmTerrain = false;
+    cout << "Do you want to generate terrain? (y/n): ";
+    char choose;
+    while (!confirmTerrain)
+    {
+        while (true)
+        {
+            choose = _getch();
+            if (choose == 'Y' || choose == 'y')
+            {
+                dungeon.generateTerrain(hero.getX(), hero.getY(), creature[0].getX(), creature[0].getY());
+                break;
+            }
+            else if (choose == 'N' || choose == 'n')
+            {
+                confirmTerrain = true;
+                break;
+            }
+        }
+
+        if (!confirmTerrain)
+        {
+            draw();
+            cout << "Do you want to regenerate terrain? (y/n): ";
+        }
+    }
+}
+
 void menu()
 {
     cout << "Quick game please press 1.\n";
     cout << "Load game please press 2.\n";
     cout << "Custom game please press 3.\n";
-    vector<Point> point;
     while (true)
     {
         char choose = _getch();
-        ifstream inStream;
-        string fileName, fileString, stringT;
-        vector<string> lineString;
-        stringstream ss;
-        int lineIndex;
+        
         switch (choose)
         {
         case '1':
-            dungeon.generateMap();
-            dungeon.printMap();
-            hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-            creatureTotal = defaultCreatureNum;
-            creatureNum = creatureTotal;
-            for (int i = 0; i < creatureTotal; i++)
-            {
-                creature.push_back(Creature());
-                creature[i].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-                point.push_back(Point(creature[i].getX(), creature[i].getY()));
-            }
-            dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
-            draw();
+            quickGame();
             return;
 
         case '2':
-            cout << "file(*.txt) address: ";
-            //cin >> fileName;
-            fileName = "map\\Dungeon1.txt";
-            inStream.open(fileName);
-            while (getline(inStream, stringT))
-            {
-                lineString.push_back(stringT);
-            }
-            inStream.close();
-            lineIndex = dungeon.loadMap(lineString);
-            lineIndex = hero.setHeroLocation(lineString, lineIndex);
-            ss << lineString[lineIndex++];
-            ss >> creatureTotal;
-            for (int i = 0; i < creatureTotal; i++)
-            {
-                creature.push_back(Creature());
-                lineIndex = creature[i].setCreatureLocation(lineString, lineIndex);
-            }
-            draw();
+            loadGame();
             return;
 
         case '3':
-            dungeon.inputMap();
-            dungeon.printMap();
-            hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
-            creatureTotal = 1;
-            creatureNum = creatureTotal;
-            creature.push_back(Creature());
-            creature[0].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
-            draw();
-            bool confirmTerrain = false;
-            cout << "Do you want to generate terrain? (y/n): ";
-            while (!confirmTerrain)
-            {
-                while (true)
-                {
-                    choose = _getch();
-                    if (choose == 'Y' || choose == 'y')
-                    {
-                        dungeon.generateTerrain(hero.getX(), hero.getY(), creature[0].getX(), creature[0].getY());
-                        break;
-                    }
-                    else if (choose == 'N' || choose == 'n')
-                    {
-                        confirmTerrain = true;
-                        break;
-                    }
-                }
-
-                if (!confirmTerrain)
-                {
-                    draw();
-                    cout << "Do you want to regenerate terrain? (y/n): ";
-                }
-            }
-            
+            customGame();
             return;
         }
     }
@@ -430,7 +611,7 @@ int main()
     menu();
     gameState = PREPARING;
 
-    bool key[6] = { false };
+    bool key[INVALID + 1] = { false };
 
     update(key);
     gameState = GAMING;
@@ -449,6 +630,7 @@ int main()
             creaturesTurn();
             begin = clock();
         }
+        heroBeDamaged();
         draw();
         isGameOver();
     }while (!key[ESC] && gameState != GAMEOVER);

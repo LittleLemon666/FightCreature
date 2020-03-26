@@ -10,7 +10,7 @@ enum Direction
 	SouthWest,
 	SouthEast,
 	Beside,
-	Unknown
+	NotFound
 };
 
 enum CreatureState
@@ -28,7 +28,7 @@ private:
 	int health = 5;
 	int attack = 1;
 	int state = CLive;
-	int heroDirection = Unknown;
+	int heroDirection = NotFound;
 	int energy = 1;
 	int exp = 1;
 

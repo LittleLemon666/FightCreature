@@ -25,6 +25,7 @@ private:
 	int swordDirection = SSouth;
 	int experience = 0;
 	int level = 1;
+	clock_t InvincibleBegin = clock();
 
 public:
 	void setHeroLocation(int dungeonWidth, int dungeonHeight, int mode);
@@ -37,7 +38,8 @@ public:
 	int getExperience();
 	int getLevel();
 	bool touchCreature(int creatureX, int creatureY);
-	void hurt(int damage);
+	clock_t hurt(int damage);
+	void vincible();
 	void move(int _x, int _y);
 	int slash(int creatureX, int creatureY);
 	bool isLive();

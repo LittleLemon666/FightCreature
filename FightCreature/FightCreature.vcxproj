@@ -151,12 +151,14 @@
     <ClCompile Include="Dungeon.cpp" />
     <ClCompile Include="FightCreature.cpp" />
     <ClCompile Include="Hero.cpp" />
+    <ClCompile Include="LoadFCF.cpp" />
     <ClCompile Include="Point.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Creature.h" />
     <ClInclude Include="Dungeon.h" />
     <ClInclude Include="Hero.h" />
+    <ClInclude Include="LoadFCF.h" />
     <ClInclude Include="Point.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -24,7 +24,7 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 			valid = true;
 			cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
 			cin >> x;
-			if (x < 1 || x >= dungeonWidth)
+			if (x < 1 || x >= dungeonWidth - 1)
 			{
 				valid = false;
 				cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
@@ -36,7 +36,7 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 			valid = true;
 			cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
 			cin >> y;
-			if (y < 1 || y >= dungeonHeight)
+			if (y < 1 || y >= dungeonHeight - 1)
 			{
 				valid = false;
 				cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
@@ -94,13 +94,27 @@ bool Hero::touchCreature(int creatureX, int creatureY)
 	return x == creatureX && y == creatureY;
 }
 
-void Hero::hurt(int damage)
+clock_t Hero::hurt(int damage)
 {
+	if (state == HInvincible)
+	{
+		return InvincibleBegin;
+	}
 	health -= damage;
 	if (health <= 0)
 	{
 		state = HDeath;
 	}
+	else
+	{
+		state = HInvincible;
+	}
+	return InvincibleBegin = clock();
+}
+
+void Hero::vincible()
+{
+	state = HLive;
 }
 
 void Hero::move(int _x, int _y)

@@ -123,6 +123,7 @@ int Dungeon::loadMap(vector<string> lineString)
 	for (; lineIndex - 1 < height; lineIndex++)
 	{
 		dungeonMap.push_back(lineString[lineIndex] + "\n");
+		cout << lineString[lineIndex] + "\n";
 	}
 	return lineIndex;
 }
@@ -130,10 +131,24 @@ int Dungeon::loadMap(vector<string> lineString)
 void Dungeon::inputMap()
 {
 	cout << "Creating Map...\n";
-	cout << "input height:";
-	cin >> height;
-	cout << "input width:";
-	cin >> width;
+	while (true)
+	{
+		cout << "input height:";
+		cin >> height;
+		if (height <= 3)
+		{
+			cout << "Too low.\n";
+		}
+	}
+	while (true)
+	{
+		cout << "input width:";
+		cin >> width;
+		if (width <= 3)
+		{
+			cout << "Too low.\n";
+		}
+	}
 	cout << "input style of wall:";
 	cin >> wall;
 	cout << "input style of floor:";
