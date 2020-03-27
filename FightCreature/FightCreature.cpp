@@ -196,60 +196,18 @@ void creatureInformation()
             continue;
         }
         creatureNum++;
-        cout << "Creature health:" << setw(creature[i].getHealth() + (streamsize)1) << setfill('#') << " " << creature[i].getHealth();
-        cout << " Energy:" << setw(creature[i].getEnergy() + (streamsize)1) << setfill('#') << " " << creature[i].getEnergy();
-        cout << " ";
-        if (creature[i].getState() == CAlert)
-        {
-            if (creature[i].getHeroDirection() == Beside)
-            {
-                cout << "The creature is beside you.";
-            }
-            else
-            {
-                cout << "Hero is in the ";
-                switch (creature[i].getHeroDirection())
-                {
-                case East:
-                    cout << "east";
-                    break;
-                case West:
-                    cout << "west";
-                    break;
-                case North:
-                    cout << "north";
-                    break;
-                case South:
-                    cout << "south";
-                    break;
-                case NorthEast:
-                    cout << "northeast";
-                    break;
-                case SouthEast:
-                    cout << "southeast";
-                    break;
-                case NorthWest:
-                    cout << "northwest";
-                    break;
-                case SouthWest:
-                    cout << "southwest";
-                    break;
-                }
-            }
-        }
-        cout << "\n";
+        creature[i].information();
     }
     cout << "There are only " << creatureNum << " Creatures left." << "\n";
 }
 
 void gameInformation()
 {
-    cout << "Press WASD to control Hero(icon H).\n";
-    cout << "Press Space to attack Creature(icon C).\n";
+    cout << "Press WASD or arrow keys to control Hero(icon H).\n";
+    cout << "Press Space to attack in the direction where Hero is facing.\n";
+    cout << "Avoid touching creatures (icon C) or Hero will take damage.\n";
+    cout << "Use Hero's sword to knock out creatures!\n";
     cout << "Press ESC to exit the game.\n";
-    cout << "Avoid touch Creature or Hero will be damage.\n";
-    cout << "The direction of the sword that Hero taking is on where Hero facing.\n";
-    cout << "Use Hero's sword to knock out the Creature!\n";
     cout << "\n";
 }
 
@@ -614,10 +572,6 @@ int loadGame()
         else if (key[RA])
         {
             fileIndex++;
-        }
-        else
-        {
-            continue;
         }
         fileIndex = (fileIndex + filePathes.size()) % filePathes.size();
         preview(filePathes[fileIndex]);

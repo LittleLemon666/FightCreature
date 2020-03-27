@@ -1,8 +1,6 @@
-﻿  Creature.cpp
-  FightCreature.cpp
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(359,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(360,15): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(678,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Generating Code...
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(457): warning C4715: 'findHeroLocation': not all control paths return a value
+﻿  FightCreature.cpp
+D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(317,16): warning C4834: discarding return value of function with 'nodiscard' attribute
+D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(318,15): warning C4834: discarding return value of function with 'nodiscard' attribute
+D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(632,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(415): warning C4715: 'findHeroLocation': not all control paths return a value
   FightCreature.vcxproj -> D:\Programming\C++GameLab\FightCreature\Debug\FightCreature.exe

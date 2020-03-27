@@ -52,7 +52,8 @@ int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lin
 	y = _y;
 	stringstream ss;
 	ss << lineString[lineIndex++];
-	ss >> health >> attack >> experience >> level;
+	ss >> maxHealth >> attack >> experience >> level;
+	health = maxHealth;
 	return lineIndex;
 }
 
@@ -195,7 +196,9 @@ void Hero::getExp(int exp)
 
 void Hero::information()
 {
-	cout << "Hero health:" << setw(health + (streamsize)1) << setfill('#') << " " << health << " ";
+	cout << "Hero's health:" << setw(health) << setfill('#') << '#';
+	cout << setw(maxHealth - health + (streamsize)1) << setfill(' ') << ' ';
+	cout << setw(2) << right << health << " ";
 	cout << "Exp: " << experience << " Level: " << level;
 	cout << " Hero is facing ";
 	switch (swordDirection)

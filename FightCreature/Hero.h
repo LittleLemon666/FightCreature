@@ -20,6 +20,7 @@ private:
 	int x = 1;
 	int y = 1;
 	int health = 10;
+	int maxHealth = 10;
 	int attack = 3;
 	int state = HLive;
 	int swordDirection = SSouth;

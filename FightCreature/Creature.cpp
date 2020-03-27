@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <sstream>
 #include "Creature.h"
@@ -56,6 +57,8 @@ int Creature::setCreatureInformation(vector<string>& stringLine, int lineIndex)
 	stringstream ss;
 	ss << stringLine[lineIndex++];
 	ss >> health >> attack >> energy >> exp;
+	maxHealth = health;
+	maxEnergy = energy;
 	return lineIndex;
 }
 
@@ -159,6 +162,10 @@ void Creature::move(int _x, int _y)
 	else
 	{
 		energy++;
+		if (energy > maxEnergy)
+		{
+			energy = maxEnergy;
+		}
 	}
 }
 
@@ -175,4 +182,58 @@ int Creature::getHeroDirection()
 bool Creature::isLive()
 {
 	return state != CDeath;
+}
+
+void Creature::information()
+{
+	cout << "Creature's health:" << setw(health) << setfill('#') << '#';
+	cout << setw(maxHealth - health + (streamsize)1) << setfill(' ') << " ";
+	cout << setw(1) << right << health;
+	cout << " Energy:";
+	if (energy > 0)
+	{
+		cout << setw(energy) << setfill('#') << '#';
+	}
+	cout << setw(maxEnergy - energy + (streamsize)1) << setfill(' ') << " ";
+	cout << energy;
+	cout << " ";
+	if (state == CAlert)
+	{
+		if (getHeroDirection() == Beside)
+		{
+			cout << "The creature is beside you.";
+		}
+		else
+		{
+			cout << "Hero is to the ";
+			switch (getHeroDirection())
+			{
+			case East:
+				cout << "east";
+				break;
+			case West:
+				cout << "west";
+				break;
+			case North:
+				cout << "north";
+				break;
+			case South:
+				cout << "south";
+				break;
+			case NorthEast:
+				cout << "northeast";
+				break;
+			case SouthEast:
+				cout << "southeast";
+				break;
+			case NorthWest:
+				cout << "northwest";
+				break;
+			case SouthWest:
+				cout << "southwest";
+				break;
+			}
+		}
+	}
+	cout << "\n";
 }

@@ -26,10 +26,12 @@ private:
 	int x = 1;
 	int y = 1;
 	int health = 5;
+	int maxHealth = 5;
 	int attack = 1;
 	int state = CLive;
 	int heroDirection = NotFound;
 	int energy = 1;
+	int maxEnergy = 1;
 	int exp = 1;
 
 public:
@@ -47,4 +49,5 @@ public:
 	int getEnergy();
 	int getHeroDirection();
 	bool isLive();
+	void information();
 };
