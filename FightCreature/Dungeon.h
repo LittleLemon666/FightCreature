@@ -17,6 +17,7 @@ public:
 	int getHeight();
 	bool isObstacle(int x, int y);
 	bool isBoundary(int x, int y);
+	void fill();
 	void generateTerrain(int heroX, int heroY, std::vector<Point> point, int creatureNum);
 	void generateTerrain(int heroX, int heroY, int creatureX, int creatureY);
 	bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);

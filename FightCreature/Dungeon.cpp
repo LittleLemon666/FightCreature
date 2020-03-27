@@ -73,7 +73,7 @@ void Dungeon::generateTerrain(int heroX, int heroY, vector<Point> point, int cre
 	}
 }
 
-void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY)
+void Dungeon::fill()
 {
 	for (int _y = 1; _y < height - 1; _y++)
 	{
@@ -82,7 +82,10 @@ void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY
 			dungeonMap[_y][_x] = wall;
 		}
 	}
+}
 
+void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY)
+{
 	cout << "Loading";
 	while (true)
 	{
@@ -138,6 +141,10 @@ void Dungeon::inputMap()
 		{
 			cout << "Too low.\n";
 		}
+		else
+		{
+			break;
+		}
 	}
 	while (true)
 	{
@@ -146,6 +153,10 @@ void Dungeon::inputMap()
 		if (width <= 3)
 		{
 			cout << "Too low.\n";
+		}
+		else
+		{
+			break;
 		}
 	}
 	cout << "input style of wall:";

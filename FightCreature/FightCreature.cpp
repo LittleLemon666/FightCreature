@@ -444,24 +444,6 @@ void update(bool key[])
     }
 }
 
-void quickGame()
-{
-    vector<Point> point;
-    dungeon.generateMap();
-    dungeon.printMap();
-    hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-    creatureTotal = defaultCreatureNum;
-    creatureNum = creatureTotal;
-    for (int i = 0; i < creatureTotal; i++)
-    {
-        creature.push_back(Creature());
-        creature[i].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-        point.push_back(Point(creature[i].getX(), creature[i].getY()));
-    }
-    dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
-    draw();
-}
-
 bool findHeroLocation(int& heroX, string& stringT, char floor)
 {
     int x = stringT.find('H');
@@ -546,6 +528,59 @@ void preview(string mapPath)
     ss.clear();
 }
 
+void generateTerrainAndRegenerateTerrain()
+{
+    bool confirmTerrain = false;
+    cout << "Do you want to generate terrain? (y/n): ";
+    char choose;
+    while (!confirmTerrain)
+    {
+        while (true)
+        {
+            choose = _getch();
+            if (choose == 'Y' || choose == 'y')
+            {
+                dungeon.fill();
+                for (int i = 0; i < creatureTotal; i++)
+                {
+                    dungeon.generateTerrain(hero.getX(), hero.getY(), creature[i].getX(), creature[i].getY());
+                }
+                break;
+            }
+            else if (choose == 'N' || choose == 'n')
+            {
+                confirmTerrain = true;
+                break;
+            }
+        }
+
+        if (!confirmTerrain)
+        {
+            draw();
+            cout << "Do you want to regenerate terrain? (y/n): ";
+        }
+    }
+}
+
+void quickGame()
+{
+    vector<Point> point;
+    dungeon.generateMap();
+    dungeon.printMap();
+    hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+    creatureTotal = defaultCreatureNum;
+    creatureNum = creatureTotal;
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        creature.push_back(Creature());
+        creature[i].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
+        point.push_back(Point(creature[i].getX(), creature[i].getY()));
+    }
+    dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
+    draw();
+    generateTerrainAndRegenerateTerrain();
+}
+
 int loadGame()
 {
     vector<string> filePathes;
@@ -604,32 +639,7 @@ void customGame()
     creature.push_back(Creature());
     creature[0].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
     draw();
-    bool confirmTerrain = false;
-    cout << "Do you want to generate terrain? (y/n): ";
-    char choose;
-    while (!confirmTerrain)
-    {
-        while (true)
-        {
-            choose = _getch();
-            if (choose == 'Y' || choose == 'y')
-            {
-                dungeon.generateTerrain(hero.getX(), hero.getY(), creature[0].getX(), creature[0].getY());
-                break;
-            }
-            else if (choose == 'N' || choose == 'n')
-            {
-                confirmTerrain = true;
-                break;
-            }
-        }
-
-        if (!confirmTerrain)
-        {
-            draw();
-            cout << "Do you want to regenerate terrain? (y/n): ";
-        }
-    }
+    generateTerrainAndRegenerateTerrain();
 }
 
 void menu()
