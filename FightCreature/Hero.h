@@ -29,21 +29,19 @@ private:
 	clock_t InvincibleBegin = clock();
 
 public:
-	void setHeroLocation(int dungeonWidth, int dungeonHeight, int mode);
-	int loadHeroInformation(int _x, int _y, std::vector<std::string> lineString, int lineIndex);
+	Hero();
+	~Hero();
+	bool isLive();
 	int getX();
 	int getY();
-	int getState();
 	int getSwordDirection();
-	int getHealth();
-	int getExperience();
-	int getLevel();
+	void vincible();
+	void setHeroLocation(int dungeonWidth, int dungeonHeight, int mode);
+	int loadHeroInformation(int _x, int _y, std::vector<std::string> lineString, int lineIndex);
+	void move(int _x, int _y);
 	bool touchCreature(int creatureX, int creatureY);
 	clock_t hurt(int damage);
-	void vincible();
-	void move(int _x, int _y);
 	int slash(int creatureX, int creatureY);
-	bool isLive();
 	void getExp(int exp);
 	void information();
 };

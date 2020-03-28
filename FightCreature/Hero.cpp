@@ -5,9 +5,44 @@
 #include "Hero.h"
 using namespace std;
 
+Hero::Hero()
+{
+
+}
+
+Hero::~Hero()
+{
+
+}
+
+bool Hero::isLive()
+{
+	return state != HDeath;
+}
+
+int Hero::getX()
+{
+	return x;
+}
+
+int Hero::getY()
+{
+	return y;
+}
+
+int Hero::getSwordDirection()
+{
+	return swordDirection;
+}
+
+void Hero::vincible()
+{
+	state = HLive;
+}
+
 void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
 {
-	switch(mode)
+	switch (mode)
 	{
 	case 1:
 		x = rand() % (dungeonWidth - 2) + 1;
@@ -57,39 +92,26 @@ int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lin
 	return lineIndex;
 }
 
-int Hero::getSwordDirection()
+void Hero::move(int _x, int _y)
 {
-	return swordDirection;
-}
-
-int Hero::getX()
-{
-	return x;
-}
-
-int Hero::getY()
-{
-	return y;
-}
-
-int Hero::getState()
-{
-	return state;
-}
-
-int Hero::getHealth()
-{
-	return health;
-}
-
-int Hero::getExperience()
-{
-	return experience;
-}
-
-int Hero::getLevel()
-{
-	return level;
+	if (_x == -1)
+	{
+		swordDirection = SWest;
+	}
+	else if (_x == 1)
+	{
+		swordDirection = SEast;
+	}
+	else if (_y == -1)
+	{
+		swordDirection = SNorth;
+	}
+	else if (_y == 1)
+	{
+		swordDirection = SSouth;
+	}
+	x += _x;
+	y += _y;
 }
 
 bool Hero::touchCreature(int creatureX, int creatureY)
@@ -113,33 +135,6 @@ clock_t Hero::hurt(int damage)
 		state = HInvincible;
 	}
 	return InvincibleBegin = clock();
-}
-
-void Hero::vincible()
-{
-	state = HLive;
-}
-
-void Hero::move(int _x, int _y)
-{
-	if (_x == -1)
-	{
-		swordDirection = SWest;
-	}
-	else if (_x == 1)
-	{
-		swordDirection = SEast;
-	}
-	else if (_y == -1)
-	{
-		swordDirection = SNorth;
-	}
-	else if (_y == 1)
-	{
-		swordDirection = SSouth;
-	}
-	x += _x;
-	y += _y;
 }
 
 int Hero::slash(int creatureX, int creatureY)
@@ -179,27 +174,27 @@ int Hero::slash(int creatureX, int creatureY)
 	return 0;
 }
 
-bool Hero::isLive()
-{
-	return state != HDeath;
-}
-
 void Hero::getExp(int exp)
 {
 	experience += exp;
-	while (experience >= level * (level - 1) + level)
+	int nextExperience = (level - 2) * (level - 1) + level;
+	while (experience >= nextExperience)
 	{
-		experience -= level * (level - 1) + level;
+		experience -= nextExperience;
 		level++;
+		if (level % 3 == 0)
+		{
+			attack++;
+		}
 	}
 }
 
 void Hero::information()
 {
 	cout << "Hero's health:" << setw(health) << setfill('#') << '#';
-	cout << setw(maxHealth - health + (streamsize)1) << setfill(' ') << ' ';
+	cout << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << ' ';
 	cout << setw(2) << right << health << " ";
-	cout << "Exp: " << experience << " Level: " << level;
+	cout << "Exp: " << experience << " Level: " << level << " attack: " << attack;
 	cout << " Hero is facing ";
 	switch (swordDirection)
 	{

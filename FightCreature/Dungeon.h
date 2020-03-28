@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-#include <iostream>
 #include "Point.h"
 
 class Dungeon
@@ -13,18 +11,19 @@ private:
 	std::vector<std::string> dungeonMap;
 
 public:
+	Dungeon();
+	~Dungeon();
 	int getWidth();
 	int getHeight();
 	bool isObstacle(int x, int y);
 	bool isBoundary(int x, int y);
 	void fill();
-	void generateTerrain(int heroX, int heroY, std::vector<Point> point, int creatureNum);
+	void generatePlain();
+	int loadMap(std::vector<std::string> lineString);
+	void customMap();
+	void generateTerrain(int heroX, int heroY, std::vector<Point> creaturePoints, int creatureNum);
 	void generateTerrain(int heroX, int heroY, int creatureX, int creatureY);
 	bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);
-	void inputMap();
-	int loadMap(std::vector<std::string> lineString);
-	void generateMap();
 	void printMap();
-	char getFloor();
-	std::vector<std::string> outMap();
+	std::vector<std::string> outputMap();
 };

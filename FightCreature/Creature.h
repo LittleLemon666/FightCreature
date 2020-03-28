@@ -35,19 +35,18 @@ private:
 	int exp = 1;
 
 public:
-	void setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode);
-	void setCreatureLocation(int _x, int _y);
-	int setCreatureInformation(std::vector<std::string>& stringLine, int lineIndex);
-	void seeHero(int heroX, int heroY);
-	int damage();
+	Creature();
+	~Creature();
+	bool isLive();
+	bool isAlert();
 	int getX();
 	int getY();
+	int damage();
+	void setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode);
+	void loadCreatureLocation(int _x, int _y);
+	int loadCreatureInformation(std::vector<std::string>& stringLine, int lineIndex);
 	int hurt(int damage);
-	int getState();
-	int getHealth();
+	void seeHero(int heroX, int heroY);
 	void move(int _x, int _y);
-	int getEnergy();
-	int getHeroDirection();
-	bool isLive();
 	void information();
 };

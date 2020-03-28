@@ -5,6 +5,41 @@
 #include "Creature.h"
 using namespace std;
 
+Creature::Creature()
+{
+
+}
+
+Creature::~Creature()
+{
+
+}
+
+bool Creature::isLive()
+{
+	return state != CDeath;
+}
+
+bool Creature::isAlert()
+{
+	return state == CAlert;
+}
+
+int Creature::getX()
+{
+	return x;
+}
+
+int Creature::getY()
+{
+	return y;
+}
+
+int Creature::damage()
+{
+	return attack;
+}
+
 void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode)
 {
 	switch (mode)
@@ -12,8 +47,6 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 	case 1:
 		x = rand() % (dungeonWidth - 2) + 1;
 		y = rand() % (dungeonHeight - 2) + 1;
-		break;
-	case 2:
 		break;
 	case 3:
 		cout << "\n";
@@ -46,20 +79,31 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 	}
 }
 
-void Creature::setCreatureLocation(int _x, int _y)
+void Creature::loadCreatureLocation(int _x, int _y)
 {
 	x = _x;
 	y = _y;
 }
 
-int Creature::setCreatureInformation(vector<string>& stringLine, int lineIndex)
+int Creature::loadCreatureInformation(vector<string>& stringLine, int lineIndex)
 {
 	stringstream ss;
-	ss << stringLine[lineIndex++];
+	ss << stringLine[lineIndex];
 	ss >> health >> attack >> energy >> exp;
 	maxHealth = health;
 	maxEnergy = energy;
 	return lineIndex;
+}
+
+int Creature::hurt(int damage)
+{
+	health -= damage;
+	if (health <= 0)
+	{
+		state = CDeath;
+		return exp;
+	}
+	return 0;
 }
 
 void Creature::seeHero(int heroX, int heroY)
@@ -115,42 +159,6 @@ void Creature::seeHero(int heroX, int heroY)
 	}
 }
 
-int Creature::damage()
-{
-	return attack;
-}
-
-int Creature::getX()
-{
-	return x;
-}
-
-int Creature::getY()
-{
-	return y;
-}
-
-int Creature::hurt(int damage)
-{
-	health -= damage;
-	if (health <= 0)
-	{
-		state = CDeath;
-		return exp;
-	}
-	return 0;
-}
-
-int Creature::getState()
-{
-	return state;
-}
-
-int Creature::getHealth()
-{
-	return health;
-}
-
 void Creature::move(int _x, int _y)
 {
 	if (energy >= 1)
@@ -169,44 +177,29 @@ void Creature::move(int _x, int _y)
 	}
 }
 
-int Creature::getEnergy()
-{
-	return energy;
-}
-
-int Creature::getHeroDirection()
-{
-	return heroDirection;
-}
-
-bool Creature::isLive()
-{
-	return state != CDeath;
-}
-
 void Creature::information()
 {
 	cout << "Creature's health:" << setw(health) << setfill('#') << '#';
-	cout << setw(maxHealth - health + (streamsize)1) << setfill(' ') << " ";
+	cout << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << " ";
 	cout << setw(1) << right << health;
 	cout << " Energy:";
 	if (energy > 0)
 	{
 		cout << setw(energy) << setfill('#') << '#';
 	}
-	cout << setw(maxEnergy - energy + (streamsize)1) << setfill(' ') << " ";
+	cout << setw((streamsize)(maxEnergy - energy + 1)) << setfill(' ') << " ";
 	cout << energy;
 	cout << " ";
 	if (state == CAlert)
 	{
-		if (getHeroDirection() == Beside)
+		if (heroDirection == Beside)
 		{
 			cout << "The creature is beside you.";
 		}
 		else
 		{
 			cout << "Hero is to the ";
-			switch (getHeroDirection())
+			switch (heroDirection)
 			{
 			case East:
 				cout << "east";
