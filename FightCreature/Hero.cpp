@@ -81,10 +81,11 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 	}
 }
 
-int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lineIndex)
+int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lineIndex, char heroSkin)
 {
 	x = _x;
 	y = _y;
+	skin = heroSkin;
 	stringstream ss;
 	ss << lineString[lineIndex++];
 	ss >> maxHealth >> attack >> experience >> level;
@@ -189,27 +190,37 @@ void Hero::getExp(int exp)
 	}
 }
 
-void Hero::information()
+string Hero::information()
 {
-	cout << "Hero's health:" << setw(health) << setfill('#') << '#';
-	cout << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << ' ';
-	cout << setw(2) << right << health << " ";
-	cout << "Exp: " << experience << " Level: " << level << " attack: " << attack;
-	cout << " Hero is facing ";
+	stringstream ss;
+	ss << "Hero(" << skin << ")'s health:";
+	if (health > 0)
+	{
+		ss << setw(health) << setfill('#') << '#';
+	}
+	ss << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << ' ';
+	ss << setw(2) << right << health << " ";
+	ss << "Exp: " << experience << " Level: " << level << " attack: " << attack;
+	ss << " Hero is facing ";
 	switch (swordDirection)
 	{
 	case SNorth:
-		cout << "North";
+		ss << "North";
 		break;
 	case SSouth:
-		cout << "South";
+		ss << "South";
 		break;
 	case SEast:
-		cout << "East";
+		ss << "East";
 		break;
 	case SWest:
-		cout << "West";
+		ss << "West";
 		break;
 	}
-	cout << "\n";
+	return ss.str();
+}
+
+char Hero::getSkin()
+{
+	return skin;
 }

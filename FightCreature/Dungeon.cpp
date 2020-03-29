@@ -34,7 +34,7 @@ bool Dungeon::isObstacle(int x, int y)
 
 bool Dungeon::isBoundary(int x, int y)
 {
-	return x < 1 || x > width - 2 || y < 1 || y > height - 2;
+	return x < 0 || x > width - 1 || y < 0 || y > height - 1;
 }
 
 void Dungeon::fill()
@@ -51,18 +51,18 @@ void Dungeon::fill()
 void Dungeon::generatePlain()
 {
 	stringstream ss;
-	ss << setw(width + (streamsize)1) << setfill(wall) << "\n";
+	ss << setw(width + (streamsize)1) << setfill(wall) << "\0";
 	string stringTemp = ss.str();
 	ss.str("");
 	dungeonMap.push_back(stringTemp);
 	for (int y = 1; y < height - 1; y++)
 	{
-		ss << wall << setw(width - (streamsize)1) << setfill(floor) << wall << "\n";
+		ss << wall << setw(width - (streamsize)1) << setfill(floor) << wall << "\0";
 		stringTemp = ss.str();
 		ss.str("");
 		dungeonMap.push_back(stringTemp);
 	}
-	ss << setw(width + (streamsize)1) << setfill(wall) << "\n";
+	ss << setw(width + (streamsize)1) << setfill(wall) << "\0";
 	stringTemp = ss.str();
 	ss.str("");
 	dungeonMap.push_back(stringTemp);
@@ -76,7 +76,7 @@ int Dungeon::loadMap(vector<string> lineString)
 	int lineIndex = 1;
 	for (; lineIndex - 1 < height; lineIndex++)
 	{
-		dungeonMap.push_back(lineString[lineIndex] + "\n");
+		dungeonMap.push_back(lineString[lineIndex] + "\0");
 	}
 	return lineIndex;
 }

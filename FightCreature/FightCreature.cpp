@@ -27,6 +27,7 @@ int dy[] = { -1, 1, 0, 0 };
 Dungeon dungeon;
 Hero hero;
 vector<Creature> creatures;
+vector<char> creaturesSkinList;
 vector<Trigger> triggers;
 static int creatureTotal;
 static int creatureNum;
@@ -160,8 +161,8 @@ void customGame();
 //load FCF
 void preview(string mapPath);
 void loadMapInformation(string mapPath);
-bool loadFindHeroLocation(int& heroX, string& stringT, char floor);
-bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor);
+bool loadFindHeroLocation(int& heroX, string& stringT, char floor, char heroSkin);
+bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex);
 void generateTerrainAndRegenerateTerrain();
 //gaming
 void creaturesTurn();
@@ -367,9 +368,14 @@ bool menu()
 
 void gameInformation()
 {
-    cout << "Press WASD or arrow keys to control Hero(icon H).\n";
+    cout << "Press WASD or arrow keys to control Hero(icon " << hero.getSkin() << ").\n";
     cout << "Press Space to attack in the direction where Hero is facing.\n";
-    cout << "Avoid touching creatures (icon C) or Hero will take damage.\n";
+    cout << "Avoid touching enemies (icon ";
+    for (int i = 0; i < creaturesSkinList.size(); i++)
+    {
+        cout << creaturesSkinList[i];
+    }
+    cout << ") or Hero will take damage.\n";
     cout << "Pick up triggers(+) will get some exp.\n";
     cout << "Use Hero's sword to knock out creatures!\n";
     cout << "Press ESC to exit the game.\n";
@@ -477,15 +483,20 @@ void loadMapInformation(string mapPath)
     ifstream inStream;
     string fileString, stringT;
     vector<string> lineString;
+    vector<int> creaturesPropertyIndex;
     stringstream ss;
     int lineIndex = 0, height, heroX = 1, heroY = 1;
-    char wall, floor;
+    char wall, floor, heroSkin, creatureSkinT;
     creatureTotal = 0;
     inStream.open(mapPath);
     getline(inStream, stringT);
     lineString.push_back(stringT);
     ss << stringT;
-    ss >> height >> height >> wall;
+    ss >> height >> height >> wall >> heroSkin;
+    while (ss >> creatureSkinT)
+    {
+        creaturesSkinList.push_back(creatureSkinT);
+    }
     floor = stringT[(int)stringT.length() - 2];
     while (getline(inStream, stringT))
     {
@@ -493,27 +504,27 @@ void loadMapInformation(string mapPath)
     }
     for (int y = 0; y < height; y++)
     {
-        if (loadFindHeroLocation(heroX, lineString[y + 1], floor))
+        if (loadFindHeroLocation(heroX, lineString[y + 1], floor, heroSkin))
         {
             heroY = y;
         }
-        while (loadFindCreatureLocation(creatures, y, lineString[y + 1], floor));
+        while (loadFindCreatureLocation(creatures, y, lineString[y + 1], floor, creaturesSkinList, creaturesPropertyIndex));
     }
     inStream.close();
     lineIndex = dungeon.loadMap(lineString);
     lineIndex++;
-    lineIndex = hero.loadHeroInformation(heroX, heroY, lineString, lineIndex);
+    lineIndex = hero.loadHeroInformation(heroX, heroY, lineString, lineIndex, heroSkin);
     lineIndex++;
     for (int i = 0; i < creatureTotal; i++)
     {
-        lineIndex = creatures[i].loadCreatureInformation(lineString, lineIndex);
+        lineIndex = creatures[i].loadCreatureInformation(lineString, lineIndex, creaturesSkinList, creaturesPropertyIndex[i]);
     }
     cout << creatureTotal;
 }
 
-bool loadFindHeroLocation(int& heroX, string& stringT, char floor)
+bool loadFindHeroLocation(int& heroX, string& stringT, char floor, char heroSkin)
 {
-    int x = stringT.find('H');
+    int x = stringT.find(heroSkin);
     if (x == -1)
     {
         return false;
@@ -523,15 +534,20 @@ bool loadFindHeroLocation(int& heroX, string& stringT, char floor)
     true;
 }
 
-bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor)
+bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex)
 {
-    int creatureX = stringT.find('C');
-    if (creatureX != -1)
+    int creatureX;
+    for (int i = 0; i < creaturesSkinList.size(); i++)
     {
-        creature.push_back(Creature());
-        creature[creatureTotal++].loadCreatureLocation(creatureX, creatureY);
-        stringT[creatureX] = floor;
-        return true;
+        creatureX = stringT.find(creaturesSkinList[i]);
+        if (creatureX != -1)
+        {
+            creature.push_back(Creature());
+            creature[creatureTotal++].loadCreatureLocation(creatureX, creatureY);
+            stringT[creatureX] = floor;
+            creaturesPropertyIndex.push_back(i);
+            return true;
+        }
     }
     return false;
 }
@@ -650,6 +666,10 @@ void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& cre
         {
             nextX = nowX + dx[dir];
             nextY = nowY + dy[dir];
+            if (dungeon.isBoundary(nextX, nextY) || dungeon.isObstacle(nextX, nextY))
+            {
+                continue;
+            }
             if (flag[nowY][nowX] - 1 == flag[nextY][nextX])
             {
                 break;
@@ -689,10 +709,16 @@ void creatureInformation()
         {
             continue;
         }
+        if (creatureNum + 1 >= dungeon.getHeight())
+        {
+            screen.push_back(string(dungeon.getWidth(), ' '));
+        }
+        screen[creatureNum + 1] += "  " + creatures[i].information();
         creatureNum++;
-        creatures[i].information();
     }
-    cout << "There are only " << creatureNum << " Creatures left." << "\n";
+    stringstream ss;
+    ss << "There are only " << creatureNum << " Creatures left.";
+    screen.push_back(ss.str());
 }
 
 void generateTrigger()
@@ -712,9 +738,16 @@ void generateTrigger()
 void draw()
 {
     screen = dungeon.outputMap();
+    for (int i = 0; i < triggerTotal; i++)
+    {
+        if (triggers[i].isExist())
+        {
+            screen[triggers[i].getY()][triggers[i].getX()] = triggers[i].printTrigger();
+        }
+    }
     if (hero.isLive())
     {
-        screen[hero.getY()][hero.getX()] = 'H';
+        screen[hero.getY()][hero.getX()] = hero.getSkin();
     }
     for (int i = 0; i < creatureTotal; i++)
     {
@@ -726,27 +759,19 @@ void draw()
             }
             else
             {
-                screen[creatures[i].getY()][creatures[i].getX()] = 'C';
+                screen[creatures[i].getY()][creatures[i].getX()] = creatures[i].getSkin();
             }
-        }
-    }
-    for (int i = 0; i < triggerTotal; i++)
-    {
-        if (triggers[i].isExist())
-        {
-            screen[triggers[i].getY()][triggers[i].getX()] = triggers[i].printTrigger();
         }
     }
 
     system("CLS");
     gameInformation();
+    screen[0] += "  " + hero.information();
+    creatureInformation();
     for (string line : screen)
     {
-        cout << line;
+        cout << line << "\n";
     }
-    cout << "\n";
-    hero.information();
-    creatureInformation();
 }
 
 void isGameOver()

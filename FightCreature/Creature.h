@@ -33,6 +33,7 @@ private:
 	int energy = 1;
 	int maxEnergy = 1;
 	int exp = 1;
+	char skin = 'C';
 
 public:
 	Creature();
@@ -44,9 +45,10 @@ public:
 	int damage();
 	void setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode);
 	void loadCreatureLocation(int _x, int _y);
-	int loadCreatureInformation(std::vector<std::string>& stringLine, int lineIndex);
+	int loadCreatureInformation(std::vector<std::string>& stringLine, int lineIndex, std::vector<char>& creaturesSkineList, int creaturesPropertyIndex);
 	int hurt(int damage);
 	void seeHero(int heroX, int heroY);
 	void move(int _x, int _y);
-	void information();
+	std::string information();
+	char getSkin();
 };

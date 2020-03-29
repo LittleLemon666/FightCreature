@@ -85,11 +85,12 @@ void Creature::loadCreatureLocation(int _x, int _y)
 	y = _y;
 }
 
-int Creature::loadCreatureInformation(vector<string>& stringLine, int lineIndex)
+int Creature::loadCreatureInformation(vector<string>& stringLine, int lineIndex, vector<char>& creaturesSkineList, int creaturesPropertyIndex)
 {
 	stringstream ss;
-	ss << stringLine[lineIndex];
+	ss << stringLine[lineIndex + creaturesPropertyIndex];
 	ss >> health >> attack >> energy >> exp;
+	skin = creaturesSkineList[creaturesPropertyIndex];
 	maxHealth = health;
 	maxEnergy = energy;
 	return lineIndex;
@@ -161,11 +162,11 @@ void Creature::seeHero(int heroX, int heroY)
 
 void Creature::move(int _x, int _y)
 {
-	if (energy >= 1)
+	if (energy >= maxEnergy)
 	{
 		x += _x;
 		y += _y;
-		energy--;
+		energy = 0;
 	}
 	else
 	{
@@ -177,56 +178,66 @@ void Creature::move(int _x, int _y)
 	}
 }
 
-void Creature::information()
+string Creature::information()
 {
-	cout << "Creature's health:" << setw(health) << setfill('#') << '#';
-	cout << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << " ";
-	cout << setw(1) << right << health;
-	cout << " Energy:";
+	stringstream ss;
+	ss << "Creature(" << skin << ")'s health:";
+	if (health > 0)
+	{
+		ss << setw(health) << setfill('#') << '#';
+	}
+	ss << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << " ";
+	ss << setw(1) << right << health;
+	ss << " Energy:";
 	if (energy > 0)
 	{
-		cout << setw(energy) << setfill('#') << '#';
+		ss << setw(energy) << setfill('#') << '#';
 	}
-	cout << setw((streamsize)(maxEnergy - energy + 1)) << setfill(' ') << " ";
-	cout << energy;
-	cout << " ";
+	ss << setw((streamsize)(maxEnergy - energy + 1)) << setfill(' ') << " ";
+	ss << energy;
+	ss << " ";
 	if (state == CAlert)
 	{
 		if (heroDirection == Beside)
 		{
-			cout << "The creature is beside you.";
+			ss << "The creature is beside you.";
 		}
 		else
 		{
-			cout << "Hero is to the ";
+			ss << "Hero is to the ";
 			switch (heroDirection)
 			{
 			case East:
-				cout << "east";
+				ss << "east";
 				break;
 			case West:
-				cout << "west";
+				ss << "west";
 				break;
 			case North:
-				cout << "north";
+				ss << "north";
 				break;
 			case South:
-				cout << "south";
+				ss << "south";
 				break;
 			case NorthEast:
-				cout << "northeast";
+				ss << "northeast";
 				break;
 			case SouthEast:
-				cout << "southeast";
+				ss << "southeast";
 				break;
 			case NorthWest:
-				cout << "northwest";
+				ss << "northwest";
 				break;
 			case SouthWest:
-				cout << "southwest";
+				ss << "southwest";
 				break;
 			}
 		}
 	}
-	cout << "\n";
+	return ss.str();
+}
+
+char Creature::getSkin()
+{
+	return skin;
 }
