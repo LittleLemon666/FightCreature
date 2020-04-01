@@ -170,11 +170,16 @@ void Creature::move(int _x, int _y)
 	}
 	else
 	{
-		energy++;
-		if (energy > maxEnergy)
-		{
-			energy = maxEnergy;
-		}
+		energyRecovery();
+	}
+}
+
+void Creature::energyRecovery()
+{
+	energy++;
+	if (energy > maxEnergy)
+	{
+		energy = maxEnergy;
 	}
 }
 

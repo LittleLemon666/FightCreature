@@ -9,9 +9,9 @@ enum heroState
 enum SwordDirection
 {
 	SNorth,
-	SEast,
+	SSouth,
 	SWest,
-	SSouth
+	SEast
 };
 
 class Hero

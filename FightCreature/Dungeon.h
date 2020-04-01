@@ -15,6 +15,7 @@ public:
 	~Dungeon();
 	int getWidth();
 	int getHeight();
+	char getFloorSkin();
 	bool isObstacle(int x, int y);
 	bool isBoundary(int x, int y);
 	void fill();

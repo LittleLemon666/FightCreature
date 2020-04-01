@@ -9,11 +9,16 @@
 #include <queue>
 #include <conio.h>		// _getch() <= to read input without enter "ENTER" key
 #include <windows.h>    // LPWSTR ConvertString  cvtLPW2stdstring  read_directory
+#include <Mmsystem.h>
+#include <mciapi.h>
+//these two headers are already included in the <Windows.h> header
+#pragma comment(lib, "Winmm.lib")
 #include "Dungeon.h"
 #include "Hero.h"
 #include "Creature.h"
 #include "Trigger.h"
 #include "Point.h"
+#include "LoadFiles.h"
 #define defaultCreatureNum 5
 #define defaultCreatureSpeed 300
 #define defaultHeroInvincibleTime 700
@@ -35,6 +40,7 @@ static int triggerTotal;
 static int gameState;
 static clock_t InvincibleEnd;
 static clock_t InvincibleStart;
+static bool isMountDemonSlayer;
 vector<string> screen;
 
 enum KeyState
@@ -50,6 +56,9 @@ enum KeyState
     LA,
     RA,
     ENTER,
+    ZERO,
+    ONE,
+    TWO,
     INVALID
 };
 
@@ -67,89 +76,20 @@ enum GameMode
     CustomGame = 3
 };
 
-class LoadFCF
+class DemonSlayer
 {
 public:
-    static LPWSTR ConvertString(const std::string& instr)
-    {
-        //Author: scruffybear
-        //URL: https://xionghuilin.com/c-convert-between-string-and-cstring-lpwstr/
-
-        // Assumes std::string is encoded in the current Windows ANSI codepage
-        int bufferlen = ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), NULL, 0);
-
-        if (bufferlen == 0)
-        {
-            // Something went wrong. Perhaps, check GetLastError() and log.
-            return 0;
-        }
-
-        // Allocate new LPWSTR - must deallocate it later
-        LPWSTR widestr = new WCHAR[bufferlen + 1];
-
-        ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), widestr, bufferlen);
-
-        // Ensure wide string is null terminated
-        widestr[bufferlen] = 0;
-
-        // Do something with widestr
-        return widestr;
-        //delete[] widestr;
-    }
-
-    static bool cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage = CP_ACP)
-    {
-        //Author: ArkM
-        //URL: https://www.daniweb.com/programming/software-development/threads/155420/lpwstr-to-std-string-help
-
-        bool res = false;
-        char* p = 0;
-        int bsz;
-        bsz = WideCharToMultiByte(codepage,
-            0,
-            pw, -1,
-            0, 0,
-            0, 0);
-        if (bsz > 0) {
-            p = new char[bsz];
-            int rc = WideCharToMultiByte(codepage,
-                0,
-                pw, -1,
-                p, bsz,
-                0, 0);
-            if (rc != 0) {
-                p[bsz - 1] = 0;
-                s = p;
-                res = true;
-            }
-        }
-        delete[] p;
-        return res;
-    }
-
-    static void read_directory(const std::string& path, vector<string>& filePathes) //write map in this function
-    {
-        //Author: MARTIN
-        //URL: http://www.martinbroadhurst.com/list-the-files-in-a-directory-in-c.html
-
-        std::string pattern(path);
-        pattern.append("\\*.fcf");
-        string s;
-        WIN32_FIND_DATA data;
-        HANDLE hFind = FindFirstFile(ConvertString(pattern.c_str()), &data);
-        do {
-            cvtLPW2stdstring(s, data.cFileName);
-            if (s.length() == 0 || s[0] == '?')
-            {
-                break;
-            }
-            cout << s << "\n";
-            filePathes.push_back(path + "\\" + s);
-        } while (FindNextFile(hFind, &data) != 0);
-        FindClose(hFind);
-    }
+    bool isMount();
+    void BreathOfThunder();
+    void BreathOfWater1();
+    void BreathOfWater11();
 };
 
+DemonSlayer demonSlayer;
+
+HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+void maximumWindows();
+void fontsize(int, int);
 void getKey(bool key[]);
 void update(bool key[]);
 bool menu();
@@ -171,12 +111,14 @@ void heroBeDamaged();
 void creatureInformation();
 void generateTrigger();
 void draw();
+void printScreen();
 void isGameOver();
 
 int main()
 {
+    isMountDemonSlayer = demonSlayer.isMount(); //extension
     srand(time(NULL));
-    ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000); //full screen
+    maximumWindows();
     if (!menu())
     {
         return 0;
@@ -221,6 +163,27 @@ int main()
     }while (!key[ESC] && gameState != GAMEOVER);
 
     return 0;
+}
+
+void maximumWindows()
+{
+    //Author: ashishchoure
+    //URL: https://www.daniweb.com/programming/software-development/threads/308396/setting-the-console-window-size
+    HWND console = GetConsoleWindow();
+    RECT ConsoleRect;
+    GetWindowRect(console, &ConsoleRect);
+    MoveWindow(console, ConsoleRect.left, ConsoleRect.top, 1920, 1080, TRUE);
+}
+
+void fontsize(int a, int b)
+{
+    //URL: http://mycodecollection.blogspot.com/2015/01/c-console-change-font-size.html
+    PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx = new CONSOLE_FONT_INFOEX();
+    lpConsoleCurrentFontEx->cbSize = sizeof(CONSOLE_FONT_INFOEX);
+    GetCurrentConsoleFontEx(out, 0, lpConsoleCurrentFontEx);
+    lpConsoleCurrentFontEx->dwFontSize.X = a;
+    lpConsoleCurrentFontEx->dwFontSize.Y = b;
+    SetCurrentConsoleFontEx(out, 0, lpConsoleCurrentFontEx);
 }
 
 void getKey(bool key[])
@@ -269,6 +232,15 @@ void getKey(bool key[])
     case 77:
         key[RA] = true;
         break;
+    case '0':
+        key[ZERO] = true;
+        break;
+    case '1':
+        key[ONE] = true;
+        break;
+    case '2':
+        key[TWO] = true;
+        break;
     }
 }
 
@@ -306,6 +278,18 @@ void update(bool key[])
                     hero.getExp(creatures[i].hurt(hero.slash(creatures[i].getX(), creatures[i].getY())));
                 }
             }
+        }
+        else if (isMountDemonSlayer && key[ZERO])
+        {
+            demonSlayer.BreathOfWater11();
+        }
+        else if (isMountDemonSlayer && key[ONE])
+        {
+            demonSlayer.BreathOfThunder();
+        }
+        else if (isMountDemonSlayer && key[TWO])
+        {
+            demonSlayer.BreathOfWater1();
         }
         else
         {
@@ -379,7 +363,6 @@ void gameInformation()
     cout << "Pick up triggers(+) will get some exp.\n";
     cout << "Use Hero's sword to knock out creatures!\n";
     cout << "Press ESC to exit the game.\n";
-    cout << "\n";
 }
 
 void quickGame()
@@ -404,7 +387,8 @@ void quickGame()
 int loadGame()
 {
     vector<string> filePathes;
-    LoadFCF::read_directory("map", filePathes);
+    LoadFiles loadFiles;
+    loadFiles.read_directory("map", filePathes, "\\*.fcf");
 
     int fileIndex = 0;
     bool key[INVALID + 1] = { false };
@@ -497,7 +481,7 @@ void loadMapInformation(string mapPath)
     {
         creaturesSkinList.push_back(creatureSkinT);
     }
-    floor = stringT[(int)stringT.length() - 2];
+    floor = stringT[(int)stringT.length() - 1];
     while (getline(inStream, stringT))
     {
         lineString.push_back(stringT);
@@ -600,6 +584,10 @@ void creaturesTurn()
             if (creatures[i].isAlert())
             {
                 trackHero(hero.getX(), hero.getY(), creatures[i].getX(), creatures[i].getY(), creatures[i]);
+            }
+            else
+            {
+                creatures[i].energyRecovery();
             }
             creatures[i].seeHero(hero.getX(), hero.getY());
         }
@@ -709,11 +697,18 @@ void creatureInformation()
         {
             continue;
         }
-        if (creatureNum + 1 >= dungeon.getHeight())
+        if (creatureNum + 1 >= dungeon.getHeight() && creatureNum + 1 <= 40)
         {
             screen.push_back(string(dungeon.getWidth(), ' '));
         }
-        screen[creatureNum + 1] += "  " + creatures[i].information();
+        if (creatureNum + 1 == 40)
+        {
+            screen[creatureNum + 1] += "  etc.";
+        }
+        else if(creatureNum + 1 < 40)
+        {
+            screen[creatureNum + 1] += "  " + creatures[i].information();
+        }
         creatureNum++;
     }
     stringstream ss;
@@ -763,11 +758,15 @@ void draw()
             }
         }
     }
-
-    system("CLS");
-    gameInformation();
     screen[0] += "  " + hero.information();
     creatureInformation();
+    printScreen();
+}
+
+void printScreen()
+{
+    system("CLS");
+    gameInformation();
     for (string line : screen)
     {
         cout << line << "\n";
@@ -812,4 +811,268 @@ void isGameOver()
             getKey(key);
         } while (!key[ESC]);
     }
+}
+
+bool DemonSlayer::isMount()
+{
+    vector<string> filePathes;
+    LoadFiles loadFiles;
+    loadFiles.read_directory("extensions", filePathes, "\\DemonSlayer.ext");
+    return filePathes.size() > 0;
+}
+
+void DemonSlayer::BreathOfThunder()
+{
+    system("CLS");
+    fontsize(128, 128);
+    LoadFiles loadFiles;
+    mciSendString(loadFiles.ConvertString("close mp3"), NULL, 0, NULL);
+    mciSendString(loadFiles.ConvertString("open \"extensions\\BreathOfThunder.mp3\" type mpegvideo alias mp3"), NULL, 0, NULL);
+    mciSendString(loadFiles.ConvertString("play mp3"), NULL, 0, NULL);
+    cout << "\n ";
+    Sleep(2100);
+    cout << "雷";
+    Sleep(200);
+    cout << "之";
+    Sleep(200);
+    cout << "呼";
+    Sleep(200);
+    cout << "吸";
+    Sleep(1100);
+    cout << "\n        ";
+    cout << "壹";
+    Sleep(200);
+    cout << "之";
+    Sleep(200);
+    cout << "型";
+    Sleep(1300);
+    cout << "\n             ";
+    cout << "霹";
+    Sleep(200);
+    cout << "靂";
+    Sleep(200);
+    cout << "一";
+    Sleep(200);
+    cout << "閃";
+    Sleep(1000);
+    fontsize(16, 16);
+    draw();
+    int nextX = hero.getX() + dx[hero.getSwordDirection()];
+    int nextY = hero.getY() + dy[hero.getSwordDirection()];
+    int lastX = hero.getX();
+    int lastY = hero.getY();
+    int creatureIndex = 0;
+    int creatureHurtTotal = 0;
+    vector<int> creatureTIndex;
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
+        {
+            creatureTIndex.push_back(i);
+            creatureHurtTotal++;
+            if (hero.getSwordDirection() == SNorth || hero.getSwordDirection() == SSouth)
+            {
+                screen[hero.getY()][hero.getX()] = '|';
+            }
+            else
+            {
+                screen[hero.getY()][hero.getX()] = '-';
+            }
+        }
+    }
+    while (!dungeon.isBoundary(nextX, nextY) && !dungeon.isObstacle(nextX, nextY))
+    {
+        Sleep(1);
+        hero.move(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]);
+        if (creatureIndex < creatureHurtTotal)
+        {
+            screen[creatures[creatureTIndex[creatureIndex]].getY()][creatures[creatureTIndex[creatureIndex]].getX()] = '/';
+            creatureIndex = creatureHurtTotal;
+        }
+        else
+        {
+            if (hero.getSwordDirection() == SNorth || hero.getSwordDirection() == SSouth)
+            {
+                screen[lastY][lastX] = '|';
+            }
+            else
+            {
+                screen[lastY][lastX] = '-';
+            }
+        }
+        lastX = hero.getX();
+        lastY = hero.getY();
+        screen[lastY][lastX] = hero.getSkin();
+        for (int i = 0; i < creatureTotal; i++)
+        {
+            if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
+            {
+                creatureTIndex.push_back(i);
+                creatureHurtTotal++;
+            }
+        }
+        nextX = hero.getX() + dx[hero.getSwordDirection()];
+        nextY = hero.getY() + dy[hero.getSwordDirection()];
+        printScreen();
+    }
+    for (int index : creatureTIndex)
+    {
+        creatures[index].hurt(100);
+    }
+    Sleep(1000);
+}
+
+void DemonSlayer::BreathOfWater1()
+{
+    system("CLS");
+    fontsize(128, 128);
+    LoadFiles loadFiles;
+    mciSendString(loadFiles.ConvertString("close mp3"), NULL, 0, NULL);
+    mciSendString(loadFiles.ConvertString("open \"extensions\\BreathOfWater1.mp3\" type mpegvideo alias mp3"), NULL, 0, NULL);
+    mciSendString(loadFiles.ConvertString("play mp3"), NULL, 0, NULL);
+    cout << "\n ";
+    Sleep(280);
+    cout << "全";
+    Sleep(200);
+    cout << "集";
+    Sleep(200);
+    cout << "中";
+    Sleep(1100);
+    cout << "水";
+    Sleep(200);
+    cout << "之";
+    Sleep(200);
+    cout << "呼";
+    Sleep(200);
+    cout << "吸";
+    Sleep(650);
+    cout << "\n        ";
+    cout << "壹";
+    Sleep(150);
+    cout << "之";
+    Sleep(150);
+    cout << "型";
+    Sleep(600);
+    cout << "\n             ";
+    cout << "水";
+    Sleep(150);
+    cout << "面";
+    Sleep(150);
+    cout << "斬";
+    Sleep(1000);
+    fontsize(16, 16);
+    draw();
+    int nextX = hero.getX() + dx[hero.getSwordDirection()];
+    int nextY = hero.getY() + dy[hero.getSwordDirection()];
+    vector<int> creatureTIndex;
+    bool findCreature = false;;
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
+        {
+            creatureTIndex.push_back(i);
+            findCreature = true;
+        }
+    }
+    while (!dungeon.isBoundary(nextX, nextY) && !dungeon.isObstacle(nextX, nextY) && !findCreature)
+    {
+        //Sleep(1);
+        screen[hero.getY()][hero.getX()] = dungeon.getFloorSkin();
+        hero.move(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]);
+        screen[hero.getY()][hero.getX()] = hero.getSkin();
+        for (int i = 0; i < creatureTotal; i++)
+        {
+            if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
+            {
+                creatureTIndex.push_back(i);
+                findCreature = true;
+            }
+        }
+        nextX = hero.getX() + dx[hero.getSwordDirection()];
+        nextY = hero.getY() + dy[hero.getSwordDirection()];
+        printScreen();
+    }
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (hero.getSwordDirection() == SNorth || hero.getSwordDirection() == SSouth)
+        {
+            if (creatures[i].isLive() && (creatures[i].getX() == hero.getX() - 1 || creatures[i].getX() == hero.getX() + 1) && creatures[i].getY() == hero.getY())
+            {
+                creatureTIndex.push_back(i);
+                screen[creatures[i].getY()][creatures[i].getX()] = '/';
+            }
+        }
+        else
+        {
+            if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && (creatures[i].getY() == hero.getY() + 1 || creatures[i].getY() == hero.getY() - 1))
+            {
+                creatureTIndex.push_back(i);
+                screen[creatures[i].getY()][creatures[i].getX()] = '/';
+            }
+        }
+    }
+    printScreen();
+    Sleep(1000);
+    for (int index : creatureTIndex)
+    {
+        creatures[index].hurt(100);
+    }
+}
+
+void DemonSlayer::BreathOfWater11()
+{
+    system("CLS");
+    fontsize(128, 128);
+    LoadFiles loadFiles;
+    mciSendString(loadFiles.ConvertString("close mp3"), NULL, 0, NULL);
+    mciSendString(loadFiles.ConvertString("open \"extensions\\BreathOfWater11.mp3\" type mpegvideo alias mp3"), NULL, 0, NULL);
+    mciSendString(loadFiles.ConvertString("play mp3"), NULL, 0, NULL);
+    cout << "\n ";
+    Sleep(1100);
+    cout << "全";
+    Sleep(200);
+    cout << "集";
+    Sleep(200);
+    cout << "中";
+    Sleep(1100);
+    cout << "\n    ";
+    cout << "水";
+    Sleep(200);
+    cout << "之";
+    Sleep(200);
+    cout << "呼";
+    Sleep(200);
+    cout << "吸";
+    Sleep(1400);
+    cout << "\n         ";
+    cout << "拾";
+    Sleep(200);
+    cout << "壹";
+    Sleep(200);
+    cout << "之";
+    Sleep(200);
+    cout << "型";
+    Sleep(3000);
+    cout << "\n              ";
+    cout << "風";
+    Sleep(100);
+    cout << "平";
+    Sleep(100);
+    cout << "浪";
+    Sleep(100);
+    cout << "靜";
+    Sleep(1000);
+    fontsize(16, 16);
+    draw();
+    Sleep(500);
+    for (int i = 0; i < creatureTotal; i++)
+    {
+        if (creatures[i].isLive() && creatures[i].isAlert())
+        {
+            creatures[i].hurt(100);
+            screen[creatures[i].getY()][creatures[i].getX()] = '/';
+        }
+    }
+    printScreen();
+    Sleep(1000);
 }

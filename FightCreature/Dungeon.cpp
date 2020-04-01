@@ -27,6 +27,11 @@ int Dungeon::getHeight()
 	return height;
 }
 
+char Dungeon::getFloorSkin()
+{
+	return floor;
+}
+
 bool Dungeon::isObstacle(int x, int y)
 {
 	return dungeonMap[y][x] == wall;
@@ -72,7 +77,8 @@ int Dungeon::loadMap(vector<string> lineString)
 {
 	stringstream ss;
 	ss << lineString[0];
-	ss >> width >> height >> wall >> floor;
+	ss >> width >> height >> wall;
+	floor = lineString[0][(int)lineString[0].length() - 1];
 	int lineIndex = 1;
 	for (; lineIndex - 1 < height; lineIndex++)
 	{

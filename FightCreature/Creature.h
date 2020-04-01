@@ -49,6 +49,7 @@ public:
 	int hurt(int damage);
 	void seeHero(int heroX, int heroY);
 	void move(int _x, int _y);
+	void energyRecovery();
 	std::string information();
 	char getSkin();
 };
