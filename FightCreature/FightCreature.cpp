@@ -9,38 +9,45 @@
 #include <queue>
 #include <conio.h>		// _getch() <= to read input without enter "ENTER" key
 #include <windows.h>    // LPWSTR ConvertString  cvtLPW2stdstring  read_directory
-#include <Mmsystem.h>
-#include <mciapi.h>
+#include <Mmsystem.h>   //mp3
+#include <mciapi.h>     //mp3
 //these two headers are already included in the <Windows.h> header
-#pragma comment(lib, "Winmm.lib")
+#pragma comment(lib, "Winmm.lib") //mp3
 #include "Dungeon.h"
 #include "Hero.h"
 #include "Creature.h"
 #include "Trigger.h"
+#include "Trap.h"
 #include "Point.h"
 #include "LoadFiles.h"
-#define defaultCreatureNum 5
-#define defaultCreatureSpeed 300
-#define defaultHeroInvincibleTime 700
-#define defaultTriggerGenerateTimeFrame 2000
 using namespace std;
 using std::ifstream;
 
 int dx[] = { 0, 0, -1, 1 };
 int dy[] = { -1, 1, 0, 0 };
 
+const int defaultKeyNum = 16;
+const int defaultcreatureNum = 3;
+const int defaultCreatureSpeed = 300;
+const int defaultHeroInvincibleTime = 700;
+const int defaultTriggerGenerateTimeFrame = 2000;
+bool key[defaultKeyNum] = { false };
 Dungeon dungeon;
 Hero hero;
 vector<Creature> creatures;
 vector<char> creaturesSkinList;
 vector<Trigger> triggers;
-static int creatureTotal;
-static int creatureNum;
-static int triggerTotal;
+vector<Trap> traps;
+int Creature::creatureTotal;
+int Creature::creatureNum;
+int Trigger::Trigger::triggerTotal;
+int Trap::trapTotal;
+char Trap::trapShape = 'x';
 static int gameState;
 static clock_t InvincibleEnd;
 static clock_t InvincibleStart;
 static bool isMountDemonSlayer;
+bool Trap::trapIsTouched;
 vector<string> screen;
 
 enum KeyState
@@ -59,6 +66,7 @@ enum KeyState
     ZERO,
     ONE,
     TWO,
+    THREE,
     INVALID
 };
 
@@ -89,9 +97,9 @@ DemonSlayer demonSlayer;
 
 HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 void maximumWindows();
-void fontsize(int, int);
-void getKey(bool key[]);
-void update(bool key[]);
+void fontsize(const int, const int);
+void getKey();
+void update();
 bool menu();
 void gameInformation();
 //game mode
@@ -99,14 +107,15 @@ void quickGame();
 int loadGame();
 void customGame();
 //load FCF
-void preview(string mapPath);
-void loadMapInformation(string mapPath);
-bool loadFindHeroLocation(int& heroX, string& stringT, char floor, char heroSkin);
-bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex);
+void preview(const string mapPath);
+void loadMapInformation(const string mapPath);
+bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const char heroSkin);
+bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, string& stringT, const char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex);
+bool loadFindTrapLocation(vector<Trap>& traps, const int y, string& StringT, const char floo, const char trapSkin);
 void generateTerrainAndRegenerateTerrain();
 //gaming
 void creaturesTurn();
-void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& creatureT);
+void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT);
 void heroBeDamaged();
 void creatureInformation();
 void generateTrigger();
@@ -119,16 +128,17 @@ int main()
     isMountDemonSlayer = demonSlayer.isMount(); //extension
     srand(time(NULL));
     maximumWindows();
+
+    Trap::trapTotal = 0;
+    Trap::trapIsTouched = false;
     if (!menu())
     {
         return 0;
     }
     gameState = PREPARING;
-    triggerTotal = 0;
+    Trigger::triggerTotal = 0;
 
-    bool key[INVALID + 1] = { false };
-
-    update(key);
+    update();
     gameState = GAMING;
     clock_t creatureTimeBegin = clock();
     clock_t creatureTimeEnd;
@@ -138,8 +148,8 @@ int main()
     {
         if (_kbhit())
         {
-            getKey(key);
-            update(key);
+            getKey();
+            update();
         }
         if (gameState == GAMEOVER)
         {
@@ -175,7 +185,7 @@ void maximumWindows()
     MoveWindow(console, ConsoleRect.left, ConsoleRect.top, 1920, 1080, TRUE);
 }
 
-void fontsize(int a, int b)
+void fontsize(const int a, const int b)
 {
     //URL: http://mycodecollection.blogspot.com/2015/01/c-console-change-font-size.html
     PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx = new CONSOLE_FONT_INFOEX();
@@ -186,7 +196,7 @@ void fontsize(int a, int b)
     SetCurrentConsoleFontEx(out, 0, lpConsoleCurrentFontEx);
 }
 
-void getKey(bool key[])
+void getKey()
 {
     for (int i = 0; i < INVALID; i++)
     {
@@ -241,10 +251,13 @@ void getKey(bool key[])
     case '2':
         key[TWO] = true;
         break;
+    case '3':
+        key[THREE] = true;
+        break;
     }
 }
 
-void update(bool key[])
+void update()
 {
     if (gameState == GAMING)
     {
@@ -271,11 +284,18 @@ void update(bool key[])
         }
         else if (key[SPACE])
         {
-            for (int i = 0; i < creatureTotal; i++)
+            for (int i = 0; i < Creature::creatureTotal; i++)
             {
                 if (creatures[i].isLive())
                 {
                     hero.getExp(creatures[i].hurt(hero.slash(creatures[i].getX(), creatures[i].getY())));
+                }
+            }
+            for (int i = 0; i < Trap::trapTotal; i++)
+            {
+                if (traps[i].isExist())
+                {
+                    traps[i].destroyTrap(hero.slash(traps[i].getX(), traps[i].getY()) > 0);
                 }
             }
         }
@@ -304,11 +324,18 @@ void update(bool key[])
         if (!dungeon.isBoundary(hero.getX() + _x, hero.getY() + _y) && !dungeon.isObstacle(hero.getX() + _x, hero.getY() + _y))
         {
             hero.move(_x, _y);
-            for (int i = 0; i < triggerTotal; i++)
+            for (int i = 0; i < Trigger::triggerTotal; i++)
             {
                 if (triggers[i].isExist() && triggers[i].getX() == hero.getX() && triggers[i].getY() == hero.getY())
                 {
                     hero.getExp(triggers[i].getTrigger());
+                }
+            }
+            for (int i = 0; i < Trap::trapTotal; i++)
+            {
+                if (traps[i].isExist() && traps[i].getX() == hero.getX() && traps[i].getY() == hero.getY())
+                {
+                    traps[i].touchTrap();
                 }
             }
         }
@@ -324,27 +351,28 @@ bool menu()
     int result;
     while (true)
     {
-        char choose = _getch();
-
-        switch (choose)
+        getKey();
+        if (key[ONE])
         {
-        case '1':
             quickGame();
             return true;
-
-        case '2':
+        }
+        else if (key[TWO])
+        {
             result = loadGame();
             if (result == 0)
             {
                 menu();
             }
             return true;
-
-        case '3':
+        }
+        else if (key[THREE])
+        {
             customGame();
             return true;
-
-        case 27: //ESC
+        }
+        else if (key[ESC])
+        {
             return false;
         }
     }
@@ -361,6 +389,7 @@ void gameInformation()
     }
     cout << ") or Hero will take damage.\n";
     cout << "Pick up triggers(+) will get some exp.\n";
+    cout << "Enemies track Hero when Hero touches traps(" << string(1, Trap::trapShape) <<").\n";
     cout << "Use Hero's sword to knock out creatures!\n";
     cout << "Press ESC to exit the game.\n";
 }
@@ -369,17 +398,16 @@ void quickGame()
 {
     vector<Point> point;
     dungeon.generatePlain();
-    dungeon.printMap();
     hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
-    creatureTotal = defaultCreatureNum;
-    creatureNum = creatureTotal;
-    for (int i = 0; i < creatureTotal; i++)
+    Creature::creatureTotal = defaultcreatureNum;
+    Creature::creatureNum = Creature::creatureTotal;
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         creatures.push_back(Creature());
         creatures[i].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), QuickGame);
         point.push_back(Point(creatures[i].getX(), creatures[i].getY()));
     }
-    dungeon.generateTerrain(hero.getX(), hero.getY(), point, creatureTotal);
+    dungeon.generateTerrain(hero.getX(), hero.getY(), point, Creature::creatureTotal);
     draw();
     generateTerrainAndRegenerateTerrain();
 }
@@ -391,7 +419,6 @@ int loadGame()
     loadFiles.read_directory("map", filePathes, "\\*.fcf");
 
     int fileIndex = 0;
-    bool key[INVALID + 1] = { false };
     cout << filePathes.size() << " files loaded.\n";
     if (filePathes.size() == 0)
     {
@@ -422,7 +449,7 @@ int loadGame()
         preview(filePathes[fileIndex]);
         cout << filePathes[fileIndex] << " \n";
         cout << "Press Enter to select the map!";
-        getKey(key);
+        getKey();
     }
     loadMapInformation(filePathes[fileIndex]);
     draw();
@@ -432,17 +459,16 @@ int loadGame()
 void customGame()
 {
     dungeon.customMap();
-    dungeon.printMap();
     hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
-    creatureTotal = 1;
-    creatureNum = creatureTotal;
+    Creature::creatureTotal = 1;
+    Creature::creatureNum = Creature::creatureTotal;
     creatures.push_back(Creature());
     creatures[0].setCreatureLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
     draw();
     generateTerrainAndRegenerateTerrain();
 }
 
-void preview(string mapPath)
+void preview(const string mapPath)
 {
     ifstream inStream;
     string stringT;
@@ -462,7 +488,7 @@ void preview(string mapPath)
     ss.clear();
 }
 
-void loadMapInformation(string mapPath)
+void loadMapInformation(const string mapPath)
 {
     ifstream inStream;
     string fileString, stringT;
@@ -470,13 +496,13 @@ void loadMapInformation(string mapPath)
     vector<int> creaturesPropertyIndex;
     stringstream ss;
     int lineIndex = 0, height, heroX = 1, heroY = 1;
-    char wall, floor, heroSkin, creatureSkinT;
-    creatureTotal = 0;
+    char wall, floor, heroSkin, creatureSkinT, trapSkin;
+    Creature::creatureTotal = 0;
     inStream.open(mapPath);
     getline(inStream, stringT);
     lineString.push_back(stringT);
     ss << stringT;
-    ss >> height >> height >> wall >> heroSkin;
+    ss >> height >> height >> wall >> trapSkin >> heroSkin;
     while (ss >> creatureSkinT)
     {
         creaturesSkinList.push_back(creatureSkinT);
@@ -493,20 +519,21 @@ void loadMapInformation(string mapPath)
             heroY = y;
         }
         while (loadFindCreatureLocation(creatures, y, lineString[y + 1], floor, creaturesSkinList, creaturesPropertyIndex));
+        while (loadFindTrapLocation(traps, y, lineString[y + 1], floor, trapSkin));
     }
     inStream.close();
     lineIndex = dungeon.loadMap(lineString);
     lineIndex++;
     lineIndex = hero.loadHeroInformation(heroX, heroY, lineString, lineIndex, heroSkin);
     lineIndex++;
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         lineIndex = creatures[i].loadCreatureInformation(lineString, lineIndex, creaturesSkinList, creaturesPropertyIndex[i]);
     }
-    cout << creatureTotal;
+    cout << Creature::creatureTotal;
 }
 
-bool loadFindHeroLocation(int& heroX, string& stringT, char floor, char heroSkin)
+bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const char heroSkin)
 {
     int x = stringT.find(heroSkin);
     if (x == -1)
@@ -518,7 +545,7 @@ bool loadFindHeroLocation(int& heroX, string& stringT, char floor, char heroSkin
     true;
 }
 
-bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string& stringT, char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex)
+bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, string& stringT, const char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex)
 {
     int creatureX;
     for (int i = 0; i < creaturesSkinList.size(); i++)
@@ -527,11 +554,24 @@ bool loadFindCreatureLocation(vector<Creature>& creature, int creatureY, string&
         if (creatureX != -1)
         {
             creature.push_back(Creature());
-            creature[creatureTotal++].loadCreatureLocation(creatureX, creatureY);
+            creature[Creature::creatureTotal++].loadCreatureLocation(creatureX, creatureY);
             stringT[creatureX] = floor;
             creaturesPropertyIndex.push_back(i);
             return true;
         }
+    }
+    return false;
+}
+
+bool loadFindTrapLocation(vector<Trap>& traps, const int trapY, string& stringT, const char floor, const char trapSkin)
+{
+    int trapX = stringT.find(trapSkin);
+    if (trapX != -1)
+    {
+        traps.push_back(Trap(trapX, trapY, trapSkin));
+        stringT[trapX] = floor;
+        Trap::trapTotal++;
+        return true;
     }
     return false;
 }
@@ -549,7 +589,7 @@ void generateTerrainAndRegenerateTerrain()
             if (choose == 'Y' || choose == 'y')
             {
                 dungeon.fill();
-                for (int i = 0; i < creatureTotal; i++)
+                for (int i = 0; i < Creature::creatureTotal; i++)
                 {
                     dungeon.generateTerrain(hero.getX(), hero.getY(), creatures[i].getX(), creatures[i].getY());
                 }
@@ -576,12 +616,12 @@ void generateTerrainAndRegenerateTerrain()
 
 void creaturesTurn()
 {
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive())
         {
             creatures[i].seeHero(hero.getX(), hero.getY());
-            if (creatures[i].isAlert())
+            if (creatures[i].isAlert() || Trap::trapIsTouched)
             {
                 trackHero(hero.getX(), hero.getY(), creatures[i].getX(), creatures[i].getY(), creatures[i]);
             }
@@ -594,7 +634,7 @@ void creaturesTurn()
     }
 }
 
-void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& creatureT) //problem
+void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT) //problem
 {
     if (heroX == creatureX && heroY == creatureY)
     {
@@ -674,7 +714,7 @@ void trackHero(int heroX, int heroY, int creatureX, int creatureY, Creature& cre
 
 void heroBeDamaged()
 {
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive() && hero.touchCreature(creatures[i].getX(), creatures[i].getY()))
         {
@@ -690,29 +730,29 @@ void heroBeDamaged()
 
 void creatureInformation()
 {
-    creatureNum = 0;
-    for (int i = 0; i < creatureTotal; i++)
+    Creature::creatureNum = 0;
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (!creatures[i].isLive())
         {
             continue;
         }
-        if (creatureNum + 1 >= dungeon.getHeight() && creatureNum + 1 <= 40)
+        if (Creature::creatureNum + 1 >= dungeon.getHeight() && Creature::creatureNum + 1 <= 40)
         {
             screen.push_back(string(dungeon.getWidth(), ' '));
         }
-        if (creatureNum + 1 == 40)
+        if (Creature::creatureNum + 1 == 40)
         {
-            screen[creatureNum + 1] += "  etc.";
+            screen[Creature::creatureNum + 1] += "  etc.";
         }
-        else if(creatureNum + 1 < 40)
+        else if(Creature::creatureNum + 1 < 40)
         {
-            screen[creatureNum + 1] += "  " + creatures[i].information();
+            screen[Creature::creatureNum + 1] += "  " + creatures[i].information();
         }
-        creatureNum++;
+        Creature::creatureNum++;
     }
     stringstream ss;
-    ss << "There are only " << creatureNum << " Creatures left.";
+    ss << "There are only " << Creature::creatureNum << " Creatures left.";
     screen.push_back(ss.str());
 }
 
@@ -727,24 +767,31 @@ void generateTrigger()
         
     } while (dungeon.isBoundary(triggerX, triggerY) || dungeon.isObstacle(triggerX, triggerY));
     triggers.push_back(Trigger(triggerX, triggerY));
-    triggerTotal++;
+    Trigger::triggerTotal++;
 }
 
 void draw()
 {
     screen = dungeon.outputMap();
-    for (int i = 0; i < triggerTotal; i++)
+    for (int i = 0; i < Trigger::triggerTotal; i++)
     {
         if (triggers[i].isExist())
         {
             screen[triggers[i].getY()][triggers[i].getX()] = triggers[i].printTrigger();
         }
     }
+    for (int i = 0; i < Trap::trapTotal; i++)
+    {
+        if (traps[i].isExist())
+        {
+            screen[traps[i].getY()][traps[i].getX()] = traps[i].printTrap();
+        }
+    }
     if (hero.isLive())
     {
         screen[hero.getY()][hero.getX()] = hero.getSkin();
     }
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive())
         {
@@ -775,7 +822,6 @@ void printScreen()
 
 void isGameOver()
 {
-    bool key[INVALID + 1] = { false };
     if (!hero.isLive())
     {
         gameState = GAMEOVER;
@@ -785,13 +831,13 @@ void isGameOver()
         cout << "Press ESC to leave.";
         do
         {
-            getKey(key);
+            getKey();
         } while (!key[ESC]);
         return;
     }
 
     gameState = GAMEOVER;
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive())
         {
@@ -808,7 +854,7 @@ void isGameOver()
         cout << "Press ESC to leave.";
         do
         {
-            getKey(key);
+            getKey();
         } while (!key[ESC]);
     }
 }
@@ -864,7 +910,7 @@ void DemonSlayer::BreathOfThunder()
     int creatureIndex = 0;
     int creatureHurtTotal = 0;
     vector<int> creatureTIndex;
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
         {
@@ -903,7 +949,7 @@ void DemonSlayer::BreathOfThunder()
         lastX = hero.getX();
         lastY = hero.getY();
         screen[lastY][lastX] = hero.getSkin();
-        for (int i = 0; i < creatureTotal; i++)
+        for (int i = 0; i < Creature::creatureTotal; i++)
         {
             if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
             {
@@ -917,7 +963,7 @@ void DemonSlayer::BreathOfThunder()
     }
     for (int index : creatureTIndex)
     {
-        creatures[index].hurt(100);
+        hero.getExp(creatures[index].hurt(100));
     }
     Sleep(1000);
 }
@@ -966,7 +1012,7 @@ void DemonSlayer::BreathOfWater1()
     int nextY = hero.getY() + dy[hero.getSwordDirection()];
     vector<int> creatureTIndex;
     bool findCreature = false;;
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
         {
@@ -980,7 +1026,7 @@ void DemonSlayer::BreathOfWater1()
         screen[hero.getY()][hero.getX()] = dungeon.getFloorSkin();
         hero.move(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]);
         screen[hero.getY()][hero.getX()] = hero.getSkin();
-        for (int i = 0; i < creatureTotal; i++)
+        for (int i = 0; i < Creature::creatureTotal; i++)
         {
             if (creatures[i].isLive() && creatures[i].getX() == hero.getX() && creatures[i].getY() == hero.getY())
             {
@@ -992,7 +1038,7 @@ void DemonSlayer::BreathOfWater1()
         nextY = hero.getY() + dy[hero.getSwordDirection()];
         printScreen();
     }
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (hero.getSwordDirection() == SNorth || hero.getSwordDirection() == SSouth)
         {
@@ -1012,11 +1058,11 @@ void DemonSlayer::BreathOfWater1()
         }
     }
     printScreen();
-    Sleep(1000);
     for (int index : creatureTIndex)
     {
-        creatures[index].hurt(100);
+        hero.getExp(creatures[index].hurt(100));
     }
+    Sleep(1000);
 }
 
 void DemonSlayer::BreathOfWater11()
@@ -1065,11 +1111,11 @@ void DemonSlayer::BreathOfWater11()
     fontsize(16, 16);
     draw();
     Sleep(500);
-    for (int i = 0; i < creatureTotal; i++)
+    for (int i = 0; i < Creature::creatureTotal; i++)
     {
         if (creatures[i].isLive() && creatures[i].isAlert())
         {
-            creatures[i].hurt(100);
+            hero.getExp(creatures[i].hurt(100));
             screen[creatures[i].getY()][creatures[i].getX()] = '/';
         }
     }

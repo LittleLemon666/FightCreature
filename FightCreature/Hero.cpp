@@ -1,5 +1,5 @@
 #include <iostream>
-#include <iomanip>
+#include <iomanip> //clock_t
 #include <vector>
 #include <sstream>
 #include "Hero.h"
@@ -15,40 +15,38 @@ Hero::~Hero()
 
 }
 
-bool Hero::isLive()
+const bool Hero::isLive() const
 {
 	return state != HDeath;
 }
 
-int Hero::getX()
+const int Hero::getX() const
 {
 	return x;
 }
 
-int Hero::getY()
+const int Hero::getY() const
 {
 	return y;
 }
 
-int Hero::getSwordDirection()
+const int Hero::getSwordDirection() const
 {
 	return swordDirection;
 }
 
-void Hero::vincible()
+const void Hero::vincible()
 {
 	state = HLive;
 }
 
-void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
+const void Hero::setHeroLocation(const int dungeonWidth, const int dungeonHeight, int&& mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
 {
 	switch (mode)
 	{
 	case 1:
 		x = rand() % (dungeonWidth - 2) + 1;
 		y = rand() % (dungeonHeight - 2) + 1;
-		break;
-	case 2:
 		break;
 	case 3:
 		cout << "\n";
@@ -81,7 +79,7 @@ void Hero::setHeroLocation(int dungeonWidth, int dungeonHeight, int mode) //mode
 	}
 }
 
-int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lineIndex, char heroSkin)
+const int Hero::loadHeroInformation(const int _x, const int _y, vector<string> lineString, int lineIndex, const char heroSkin)
 {
 	x = _x;
 	y = _y;
@@ -93,7 +91,7 @@ int Hero::loadHeroInformation(int _x, int _y, vector<string> lineString, int lin
 	return lineIndex;
 }
 
-void Hero::move(int _x, int _y)
+const void Hero::move(const int _x, const int _y)
 {
 	if (_x == -1)
 	{
@@ -115,12 +113,12 @@ void Hero::move(int _x, int _y)
 	y += _y;
 }
 
-bool Hero::touchCreature(int creatureX, int creatureY)
+const bool Hero::touchCreature(const int creatureX, const int creatureY)
 {
 	return x == creatureX && y == creatureY;
 }
 
-clock_t Hero::hurt(int damage)
+const clock_t Hero::hurt(const int damage)
 {
 	if (state == HInvincible)
 	{
@@ -138,7 +136,7 @@ clock_t Hero::hurt(int damage)
 	return InvincibleBegin = clock();
 }
 
-int Hero::slash(int creatureX, int creatureY)
+const int Hero::slash(const int creatureX, const int creatureY) const
 {
 	if (creatureX == x && creatureY == y)
 	{
@@ -175,7 +173,7 @@ int Hero::slash(int creatureX, int creatureY)
 	return 0;
 }
 
-void Hero::getExp(int exp)
+const void Hero::getExp(const int exp)
 {
 	experience += exp;
 	int nextExperience = (level - 2) * (level - 1) + level;
@@ -190,37 +188,41 @@ void Hero::getExp(int exp)
 	}
 }
 
-string Hero::information()
+const string Hero::information() const
 {
-	stringstream ss;
-	ss << "Hero(" << skin << ")'s health:";
+	string heroInformation = "";
+	heroInformation += "Hero(" + string(1, skin) + ")'s health:";
 	if (health > 0)
 	{
-		ss << setw(health) << setfill('#') << '#';
+		heroInformation += string(health, '#');
+		heroInformation += string(maxHealth - health + 1, ' ');
 	}
-	ss << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << ' ';
-	ss << setw(2) << right << health << " ";
-	ss << "Exp: " << experience << " Level: " << level << " attack: " << attack;
-	ss << " Hero is facing ";
+	else
+	{
+		heroInformation += string(maxHealth + 1, ' ');
+	}
+	heroInformation += to_string(health);
+	heroInformation += " Exp: " + to_string(experience) + " Level: " + to_string(level) + " attack: " + to_string(attack);
+	heroInformation += " Hero is facing ";
 	switch (swordDirection)
 	{
 	case SNorth:
-		ss << "North";
+		heroInformation += "North";
 		break;
 	case SSouth:
-		ss << "South";
+		heroInformation += "South";
 		break;
 	case SEast:
-		ss << "East";
+		heroInformation += "East";
 		break;
 	case SWest:
-		ss << "West";
+		heroInformation += "West";
 		break;
 	}
-	return ss.str();
+	return heroInformation;
 }
 
-char Hero::getSkin()
+const char Hero::getSkin() const
 {
 	return skin;
 }

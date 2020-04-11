@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iomanip>
 #include <vector>
 #include <sstream>
 #include "Creature.h"
@@ -15,32 +14,32 @@ Creature::~Creature()
 
 }
 
-bool Creature::isLive()
+bool Creature::isLive() const
 {
 	return state != CDeath;
 }
 
-bool Creature::isAlert()
+bool Creature::isAlert() const
 {
 	return state == CAlert;
 }
 
-int Creature::getX()
+int Creature::getX() const
 {
 	return x;
 }
 
-int Creature::getY()
+int Creature::getY() const
 {
 	return y;
 }
 
-int Creature::damage()
+int Creature::damage() const
 {
 	return attack;
 }
 
-void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode)
+void Creature::setCreatureLocation(const int dungeonWidth, const int dungeonHeight, const int mode)
 {
 	switch (mode)
 	{
@@ -79,13 +78,13 @@ void Creature::setCreatureLocation(int dungeonWidth, int dungeonHeight, int mode
 	}
 }
 
-void Creature::loadCreatureLocation(int _x, int _y)
+void Creature::loadCreatureLocation(const int _x, const int _y)
 {
 	x = _x;
 	y = _y;
 }
 
-int Creature::loadCreatureInformation(vector<string>& stringLine, int lineIndex, vector<char>& creaturesSkineList, int creaturesPropertyIndex)
+int Creature::loadCreatureInformation(vector<string>& stringLine, const int lineIndex, vector<char>& creaturesSkineList, const int creaturesPropertyIndex)
 {
 	stringstream ss;
 	ss << stringLine[lineIndex + creaturesPropertyIndex];
@@ -93,10 +92,12 @@ int Creature::loadCreatureInformation(vector<string>& stringLine, int lineIndex,
 	skin = creaturesSkineList[creaturesPropertyIndex];
 	maxHealth = health;
 	maxEnergy = energy;
+	ss.str("");
+	ss.clear();
 	return lineIndex;
 }
 
-int Creature::hurt(int damage)
+int Creature::hurt(const int damage)
 {
 	health -= damage;
 	if (health <= 0)
@@ -107,7 +108,7 @@ int Creature::hurt(int damage)
 	return 0;
 }
 
-void Creature::seeHero(int heroX, int heroY)
+void Creature::seeHero(const int heroX, const int heroY)
 {
 	if (x > heroX && x - heroX <= 3 && y == heroY)
 	{
@@ -160,7 +161,7 @@ void Creature::seeHero(int heroX, int heroY)
 	}
 }
 
-void Creature::move(int _x, int _y)
+void Creature::move(const int _x, const int _y)
 {
 	if (energy >= maxEnergy)
 	{
@@ -183,66 +184,63 @@ void Creature::energyRecovery()
 	}
 }
 
-string Creature::information()
+string Creature::information() const
 {
-	stringstream ss;
-	ss << "Creature(" << skin << ")'s health:";
+	string creatureInformation = "";
+	creatureInformation += "Creature(" + string(1, skin) + ")'s health:";
 	if (health > 0)
 	{
-		ss << setw(health) << setfill('#') << '#';
+		creatureInformation += string(health, '#');
+		creatureInformation += string(maxHealth - health + 1, ' ');
 	}
-	ss << setw((streamsize)(maxHealth - health + 1)) << setfill(' ') << " ";
-	ss << setw(1) << right << health;
-	ss << " Energy:";
-	if (energy > 0)
+	else
 	{
-		ss << setw(energy) << setfill('#') << '#';
+		creatureInformation += string(maxHealth + 1, ' ');
 	}
-	ss << setw((streamsize)(maxEnergy - energy + 1)) << setfill(' ') << " ";
-	ss << energy;
-	ss << " ";
+	creatureInformation += to_string(health);
+	creatureInformation += " Energy:" + string(energy, '#') + string(maxEnergy - energy + 1, ' ') + to_string(energy) + " ";
 	if (state == CAlert)
 	{
 		if (heroDirection == Beside)
 		{
-			ss << "The creature is beside you.";
+			creatureInformation += "The creature is beside you.";
 		}
 		else
 		{
-			ss << "Hero is to the ";
+			creatureInformation += "Hero is to the ";
 			switch (heroDirection)
 			{
 			case East:
-				ss << "east";
+				creatureInformation += "east";
 				break;
 			case West:
-				ss << "west";
+				creatureInformation += "west";
 				break;
 			case North:
-				ss << "north";
+				creatureInformation += "north";
 				break;
 			case South:
-				ss << "south";
+				creatureInformation += "south";
 				break;
 			case NorthEast:
-				ss << "northeast";
+				creatureInformation += "northeast";
 				break;
 			case SouthEast:
-				ss << "southeast";
+				creatureInformation += "southeast";
 				break;
 			case NorthWest:
-				ss << "northwest";
+				creatureInformation += "northwest";
 				break;
 			case SouthWest:
-				ss << "southwest";
+				creatureInformation += "southwest";
 				break;
 			}
 		}
 	}
-	return ss.str();
+	return creatureInformation;
 }
 
-char Creature::getSkin()
+char Creature::getSkin() const
 {
 	return skin;
 }

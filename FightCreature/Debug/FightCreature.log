@@ -1,12 +1,2 @@
-﻿  Dungeon.cpp
-D:\Programming\C++GameLab\FightCreature\FightCreature\Dungeon.cpp(145,114): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-D:\Programming\C++GameLab\FightCreature\FightCreature\Dungeon.cpp(159,83): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  FightCreature.cpp
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(120,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(358,23): warning C4018: '<': signed/unsigned mismatch
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(524,23): warning C4018: '<': signed/unsigned mismatch
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(671,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(672,15): warning C4834: discarding return value of function with 'nodiscard' attribute
-  Generating Code...
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(519): warning C4715: 'loadFindHeroLocation': not all control paths return a value
+﻿  Trap.cpp
   FightCreature.vcxproj -> D:\Programming\C++GameLab\FightCreature\Debug\FightCreature.exe

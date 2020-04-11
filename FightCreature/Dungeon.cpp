@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iomanip>
 #include <vector>
 #include <conio.h>
 #include <string>
@@ -17,36 +16,36 @@ Dungeon::~Dungeon()
 
 }
 
-int Dungeon::getWidth()
+int Dungeon::getWidth() const
 {
 	return width;
 }
 
-int Dungeon::getHeight()
+int Dungeon::getHeight() const
 {
 	return height;
 }
 
-char Dungeon::getFloorSkin()
+char Dungeon::getFloorSkin() const
 {
 	return floor;
 }
 
-bool Dungeon::isObstacle(int x, int y)
+bool Dungeon::isObstacle(int x, int y) const
 {
 	return dungeonMap[y][x] == wall;
 }
 
-bool Dungeon::isBoundary(int x, int y)
+bool Dungeon::isBoundary(int x, int y) const
 {
 	return x < 0 || x > width - 1 || y < 0 || y > height - 1;
 }
 
 void Dungeon::fill()
 {
-	for (int _y = 1; _y < height - 1; _y++)
+	for (int _y = 0; _y < height; _y++)
 	{
-		for (int _x = 1; _x < width - 1; _x++)
+		for (int _x = 0; _x < width; _x++)
 		{
 			dungeonMap[_y][_x] = wall;
 		}
@@ -55,22 +54,12 @@ void Dungeon::fill()
 
 void Dungeon::generatePlain()
 {
-	stringstream ss;
-	ss << setw(width + (streamsize)1) << setfill(wall) << "\0";
-	string stringTemp = ss.str();
-	ss.str("");
-	dungeonMap.push_back(stringTemp);
+	dungeonMap.push_back(string(width, wall));
 	for (int y = 1; y < height - 1; y++)
 	{
-		ss << wall << setw(width - (streamsize)1) << setfill(floor) << wall << "\0";
-		stringTemp = ss.str();
-		ss.str("");
-		dungeonMap.push_back(stringTemp);
+		dungeonMap.push_back(string(1,wall) + string(width - 2, floor) + string(1, wall));
 	}
-	ss << setw(width + (streamsize)1) << setfill(wall) << "\0";
-	stringTemp = ss.str();
-	ss.str("");
-	dungeonMap.push_back(stringTemp);
+	dungeonMap.push_back(string(width, wall));
 }
 //The map of FCF must fill with space until reaching its width.
 int Dungeon::loadMap(vector<string> lineString)
@@ -127,17 +116,10 @@ void Dungeon::customMap()
 	generatePlain();
 }
 
-void Dungeon::generateTerrain(int heroX, int heroY, vector<Point> creaturePoints, int creatureNum)
+void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Point> creaturePoints, const int creatureNum)
 {
-	for (int _y = 1; _y < height - 1; _y++)
-	{
-		for (int _x = 1; _x < width - 1; _x++)
-		{
-			dungeonMap[_y][_x] = wall;
-		}
-	}
+	fill();
 
-	cout << "Loading";
 	for (int i = 0; i < creatureNum; i++)
 	{
 		while (true)
@@ -151,9 +133,8 @@ void Dungeon::generateTerrain(int heroX, int heroY, vector<Point> creaturePoints
 	}
 }
 
-void Dungeon::generateTerrain(int heroX, int heroY, int creatureX, int creatureY)
+void Dungeon::generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY)
 {
-	cout << "Loading";
 	while (true)
 	{
 		if (searchPath(heroX, heroY, creatureX, creatureY, 0, pow(heroX - creatureX, 2) + pow(heroY - creatureY, 2)))
@@ -186,15 +167,7 @@ bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int p, in
 	return searchPath(nowX + dx[dir], nowY + dy[dir], targetX, targetY, p + 1, pStop);
 }
 
-void Dungeon::printMap()
-{
-	for (string line : dungeonMap)
-	{
-		cout << line;
-	}
-}
-
-vector<string> Dungeon::outputMap()
+vector<string> Dungeon::outputMap() const
 {
 	return dungeonMap;
 }

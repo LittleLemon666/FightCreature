@@ -1,38 +1,34 @@
 #include "Trigger.h"
 
-Trigger::Trigger(int _x, int _y)
-{
-	x = _x;
-	y = _y;
-}
+Trigger::Trigger(const int _x, const int _y) :x(_x), y(_y) {}
 
 Trigger::~Trigger()
 {
 
 }
 
-int Trigger::getX()
+const int Trigger::getX() const
 {
 	return x;
 }
 
-int Trigger::getY()
+const int Trigger::getY() const
 {
 	return y;
 }
 
-int Trigger::getTrigger()
+const int Trigger::getTrigger()
 {
 	exist = false;
 	return exp;
 }
 
-char Trigger::printTrigger()
+const char Trigger::printTrigger() const
 {
 	return shape;
 }
 
-bool Trigger::isExist()
+const bool Trigger::isExist() const
 {
 	return exist;
 }

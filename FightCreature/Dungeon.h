@@ -13,18 +13,17 @@ private:
 public:
 	Dungeon();
 	~Dungeon();
-	int getWidth();
-	int getHeight();
-	char getFloorSkin();
-	bool isObstacle(int x, int y);
-	bool isBoundary(int x, int y);
+	int getWidth() const;
+	int getHeight() const;
+	char getFloorSkin() const;
+	bool isObstacle(int x, int y) const;
+	bool isBoundary(int x, int y) const;
 	void fill();
 	void generatePlain();
 	int loadMap(std::vector<std::string> lineString);
 	void customMap();
-	void generateTerrain(int heroX, int heroY, std::vector<Point> creaturePoints, int creatureNum);
-	void generateTerrain(int heroX, int heroY, int creatureX, int creatureY);
+	void generateTerrain(const int heroX, const int heroY, std::vector<Point> creaturePoints, const int creatureNum);
+	void generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY);
 	bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);
-	void printMap();
-	std::vector<std::string> outputMap();
+	std::vector<std::string> outputMap() const;
 };
