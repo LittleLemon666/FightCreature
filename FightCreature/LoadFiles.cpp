@@ -15,7 +15,7 @@ LoadFiles::~LoadFiles()
 
 }
 
-LPWSTR LoadFiles::ConvertString(const std::string& instr)
+const LPWSTR LoadFiles::ConvertString(const std::string& instr)
 {
     //Author: scruffybear
     //URL: https://xionghuilin.com/c-convert-between-string-and-cstring-lpwstr/
@@ -42,7 +42,7 @@ LPWSTR LoadFiles::ConvertString(const std::string& instr)
     //delete[] widestr;
 }
 
-bool LoadFiles::cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage = CP_ACP)
+const bool LoadFiles::cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage = CP_ACP)
 {
     //Author: ArkM
     //URL: https://www.daniweb.com/programming/software-development/threads/155420/lpwstr-to-std-string-help
@@ -72,7 +72,7 @@ bool LoadFiles::cvtLPW2stdstring(std::string& s, const LPWSTR pw, UINT codepage 
     return res;
 }
 
-void LoadFiles::read_directory(const std::string& path, std::vector<std::string>& filePathes, std::string target) //write map in this function
+const void LoadFiles::read_directory(const std::string& path, std::vector<std::string>& filePathes, std::string target) //write map in this function
 {
     //Author: MARTIN
     //URL: http://www.martinbroadhurst.com/list-the-files-in-a-directory-in-c.html

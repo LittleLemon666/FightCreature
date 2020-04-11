@@ -16,32 +16,32 @@ Dungeon::~Dungeon()
 
 }
 
-int Dungeon::getWidth() const
+const int Dungeon::getWidth() const
 {
 	return width;
 }
 
-int Dungeon::getHeight() const
+const int Dungeon::getHeight() const
 {
 	return height;
 }
 
-char Dungeon::getFloorSkin() const
+const char Dungeon::getFloorSkin() const
 {
 	return floor;
 }
 
-bool Dungeon::isObstacle(int x, int y) const
+const bool Dungeon::isObstacle(int x, int y) const
 {
 	return dungeonMap[y][x] == wall;
 }
 
-bool Dungeon::isBoundary(int x, int y) const
+const bool Dungeon::isBoundary(int x, int y) const
 {
 	return x < 0 || x > width - 1 || y < 0 || y > height - 1;
 }
 
-void Dungeon::fill()
+const void Dungeon::fill()
 {
 	for (int _y = 0; _y < height; _y++)
 	{
@@ -52,7 +52,7 @@ void Dungeon::fill()
 	}
 }
 
-void Dungeon::generatePlain()
+const void Dungeon::generatePlain()
 {
 	dungeonMap.push_back(string(width, wall));
 	for (int y = 1; y < height - 1; y++)
@@ -62,7 +62,7 @@ void Dungeon::generatePlain()
 	dungeonMap.push_back(string(width, wall));
 }
 //The map of FCF must fill with space until reaching its width.
-int Dungeon::loadMap(vector<string> lineString)
+const int Dungeon::loadMap(vector<string> lineString)
 {
 	stringstream ss;
 	ss << lineString[0];
@@ -76,7 +76,7 @@ int Dungeon::loadMap(vector<string> lineString)
 	return lineIndex;
 }
 
-void Dungeon::customMap()
+const void Dungeon::customMap()
 {
 	cout << "Creating Map...\n";
 	while (true)
@@ -116,7 +116,7 @@ void Dungeon::customMap()
 	generatePlain();
 }
 
-void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Point> creaturePoints, const int creatureNum)
+const void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Point> creaturePoints, const int creatureNum)
 {
 	fill();
 
@@ -133,7 +133,7 @@ void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Point> cr
 	}
 }
 
-void Dungeon::generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY)
+const void Dungeon::generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY)
 {
 	while (true)
 	{
@@ -145,7 +145,7 @@ void Dungeon::generateTerrain(const int heroX, const int heroY, const int creatu
 	}
 }
 
-bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop)
+const bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop)
 {
 	if (p >= pStop)
 	{

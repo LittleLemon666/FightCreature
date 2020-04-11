@@ -14,32 +14,32 @@ Creature::~Creature()
 
 }
 
-bool Creature::isLive() const
+const bool Creature::isLive() const
 {
 	return state != CDeath;
 }
 
-bool Creature::isAlert() const
+const bool Creature::isAlert() const
 {
 	return state == CAlert;
 }
 
-int Creature::getX() const
+const int Creature::getX() const
 {
 	return x;
 }
 
-int Creature::getY() const
+const int Creature::getY() const
 {
 	return y;
 }
 
-int Creature::damage() const
+const int Creature::damage() const
 {
 	return attack;
 }
 
-void Creature::setCreatureLocation(const int dungeonWidth, const int dungeonHeight, const int mode)
+const void Creature::setCreatureLocation(const int dungeonWidth, const int dungeonHeight, const int mode)
 {
 	switch (mode)
 	{
@@ -78,13 +78,13 @@ void Creature::setCreatureLocation(const int dungeonWidth, const int dungeonHeig
 	}
 }
 
-void Creature::loadCreatureLocation(const int _x, const int _y)
+const void Creature::loadCreatureLocation(const int _x, const int _y)
 {
 	x = _x;
 	y = _y;
 }
 
-int Creature::loadCreatureInformation(vector<string>& stringLine, const int lineIndex, vector<char>& creaturesSkineList, const int creaturesPropertyIndex)
+const int Creature::loadCreatureInformation(vector<string>& stringLine, const int lineIndex, vector<char>& creaturesSkineList, const int creaturesPropertyIndex)
 {
 	stringstream ss;
 	ss << stringLine[lineIndex + creaturesPropertyIndex];
@@ -97,7 +97,7 @@ int Creature::loadCreatureInformation(vector<string>& stringLine, const int line
 	return lineIndex;
 }
 
-int Creature::hurt(const int damage)
+const int Creature::hurt(const int damage)
 {
 	health -= damage;
 	if (health <= 0)
@@ -108,7 +108,7 @@ int Creature::hurt(const int damage)
 	return 0;
 }
 
-void Creature::seeHero(const int heroX, const int heroY)
+const void Creature::seeHero(const int heroX, const int heroY)
 {
 	if (x > heroX && x - heroX <= 3 && y == heroY)
 	{
@@ -161,7 +161,7 @@ void Creature::seeHero(const int heroX, const int heroY)
 	}
 }
 
-void Creature::move(const int _x, const int _y)
+const void Creature::move(const int _x, const int _y)
 {
 	if (energy >= maxEnergy)
 	{
@@ -175,7 +175,7 @@ void Creature::move(const int _x, const int _y)
 	}
 }
 
-void Creature::energyRecovery()
+const void Creature::energyRecovery()
 {
 	energy++;
 	if (energy > maxEnergy)
@@ -184,7 +184,7 @@ void Creature::energyRecovery()
 	}
 }
 
-string Creature::information() const
+const string Creature::information() const
 {
 	string creatureInformation = "";
 	creatureInformation += "Creature(" + string(1, skin) + ")'s health:";
@@ -240,7 +240,7 @@ string Creature::information() const
 	return creatureInformation;
 }
 
-char Creature::getSkin() const
+const char Creature::getSkin() const
 {
 	return skin;
 }

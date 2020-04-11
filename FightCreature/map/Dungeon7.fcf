@@ -1,0 +1,16 @@
+86 9 # X H C M W  
+                                                                                      
+ #################### #################### #################### ##################    
+ #       M      M   # #     M      M     # #      W W W W W W # #       W    W    #   
+ #        M      M  ### M    M           ###      W W W W W W ###    W     W    W  #  
+ # H       W         X   M       M        X                    X               W C  # 
+ #        M      M  ### M    M      M    ###      W W W W W W ###    W     W    W  #  
+ #       M      M   # #     M   M     M  # #      W W W W W W # #       W    W    #   
+ #################### #################### #################### ##################    
+                                                                                      
+Hero: health attack experience level
+15 3 0 3
+Creature: health attack energy exp
+30 5 1 10
+5 1 1 1
+20 4 1 7

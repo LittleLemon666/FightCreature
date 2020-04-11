@@ -87,41 +87,41 @@ enum GameMode
 class DemonSlayer
 {
 public:
-    bool isMount();
-    void BreathOfThunder();
-    void BreathOfWater1();
-    void BreathOfWater11();
+    const bool isMount() const;
+    const void BreathOfThunder();
+    const void BreathOfWater1();
+    const void BreathOfWater11();
 };
 
 DemonSlayer demonSlayer;
 
 HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-void maximumWindows();
-void fontsize(const int, const int);
-void getKey();
-void update();
-bool menu();
-void gameInformation();
+const void maximumWindows();
+const void fontsize(const int, const int);
+const void getKey();
+const void update();
+const bool menu();
+const void gameInformation();
 //game mode
-void quickGame();
-int loadGame();
-void customGame();
+const void quickGame();
+const int loadGame();
+const void customGame();
 //load FCF
-void preview(const string mapPath);
-void loadMapInformation(const string mapPath);
-bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const char heroSkin);
-bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, string& stringT, const char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex);
-bool loadFindTrapLocation(vector<Trap>& traps, const int y, string& StringT, const char floo, const char trapSkin);
-void generateTerrainAndRegenerateTerrain();
+const void preview(const string mapPath);
+const void loadMapInformation(const string mapPath);
+const bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const char heroSkin);
+const bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, string& stringT, const char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex);
+const bool loadFindTrapLocation(vector<Trap>& traps, const int y, string& StringT, const char floo, const char trapSkin);
+const void generateTerrainAndRegenerateTerrain();
 //gaming
-void creaturesTurn();
-void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT);
-void heroBeDamaged();
-void creatureInformation();
-void generateTrigger();
-void draw();
-void printScreen();
-void isGameOver();
+const void creaturesTurn();
+const void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT);
+const void heroBeDamaged();
+const void creatureInformation();
+const void generateTrigger();
+const void draw();
+const void printScreen();
+const void isGameOver();
 
 int main()
 {
@@ -175,7 +175,7 @@ int main()
     return 0;
 }
 
-void maximumWindows()
+const void maximumWindows()
 {
     //Author: ashishchoure
     //URL: https://www.daniweb.com/programming/software-development/threads/308396/setting-the-console-window-size
@@ -185,7 +185,7 @@ void maximumWindows()
     MoveWindow(console, ConsoleRect.left, ConsoleRect.top, 1920, 1080, TRUE);
 }
 
-void fontsize(const int a, const int b)
+const void fontsize(const int a, const int b)
 {
     //URL: http://mycodecollection.blogspot.com/2015/01/c-console-change-font-size.html
     PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx = new CONSOLE_FONT_INFOEX();
@@ -196,7 +196,7 @@ void fontsize(const int a, const int b)
     SetCurrentConsoleFontEx(out, 0, lpConsoleCurrentFontEx);
 }
 
-void getKey()
+const void getKey()
 {
     for (int i = 0; i < INVALID; i++)
     {
@@ -257,7 +257,7 @@ void getKey()
     }
 }
 
-void update()
+const void update()
 {
     if (gameState == GAMING)
     {
@@ -342,7 +342,7 @@ void update()
     }
 }
 
-bool menu()
+const bool menu()
 {
     cout << "Quick game please press 1.\n";
     cout << "Load game please press 2.\n";
@@ -378,7 +378,7 @@ bool menu()
     }
 }
 
-void gameInformation()
+const void gameInformation()
 {
     cout << "Press WASD or arrow keys to control Hero(icon " << hero.getSkin() << ").\n";
     cout << "Press Space to attack in the direction where Hero is facing.\n";
@@ -394,7 +394,7 @@ void gameInformation()
     cout << "Press ESC to exit the game.\n";
 }
 
-void quickGame()
+const void quickGame()
 {
     vector<Point> point;
     dungeon.generatePlain();
@@ -412,7 +412,7 @@ void quickGame()
     generateTerrainAndRegenerateTerrain();
 }
 
-int loadGame()
+const int loadGame()
 {
     vector<string> filePathes;
     LoadFiles loadFiles;
@@ -456,7 +456,7 @@ int loadGame()
     return 1;
 }
 
-void customGame()
+const void customGame()
 {
     dungeon.customMap();
     hero.setHeroLocation(dungeon.getWidth(), dungeon.getHeight(), CustomGame);
@@ -468,7 +468,7 @@ void customGame()
     generateTerrainAndRegenerateTerrain();
 }
 
-void preview(const string mapPath)
+const void preview(const string mapPath)
 {
     ifstream inStream;
     string stringT;
@@ -488,7 +488,7 @@ void preview(const string mapPath)
     ss.clear();
 }
 
-void loadMapInformation(const string mapPath)
+const void loadMapInformation(const string mapPath)
 {
     ifstream inStream;
     string fileString, stringT;
@@ -533,7 +533,7 @@ void loadMapInformation(const string mapPath)
     cout << Creature::creatureTotal;
 }
 
-bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const char heroSkin)
+const bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const char heroSkin)
 {
     int x = stringT.find(heroSkin);
     if (x == -1)
@@ -545,7 +545,7 @@ bool loadFindHeroLocation(int& heroX, string& stringT, const char floor, const c
     true;
 }
 
-bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, string& stringT, const char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex)
+const bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, string& stringT, const char floor, vector<char>& creaturesSkinList, vector<int>& creaturesPropertyIndex)
 {
     int creatureX;
     for (int i = 0; i < creaturesSkinList.size(); i++)
@@ -563,7 +563,7 @@ bool loadFindCreatureLocation(vector<Creature>& creature, const int creatureY, s
     return false;
 }
 
-bool loadFindTrapLocation(vector<Trap>& traps, const int trapY, string& stringT, const char floor, const char trapSkin)
+const bool loadFindTrapLocation(vector<Trap>& traps, const int trapY, string& stringT, const char floor, const char trapSkin)
 {
     int trapX = stringT.find(trapSkin);
     if (trapX != -1)
@@ -576,7 +576,7 @@ bool loadFindTrapLocation(vector<Trap>& traps, const int trapY, string& stringT,
     return false;
 }
 
-void generateTerrainAndRegenerateTerrain()
+const void generateTerrainAndRegenerateTerrain()
 {
     bool confirmTerrain = false;
     cout << "Do you want to generate terrain? (y/n): ";
@@ -614,7 +614,7 @@ void generateTerrainAndRegenerateTerrain()
     }
 }
 
-void creaturesTurn()
+const void creaturesTurn()
 {
     for (int i = 0; i < Creature::creatureTotal; i++)
     {
@@ -634,7 +634,7 @@ void creaturesTurn()
     }
 }
 
-void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT) //problem
+const void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT) //problem
 {
     if (heroX == creatureX && heroY == creatureY)
     {
@@ -712,7 +712,7 @@ void trackHero(const int heroX, const int heroY, const int creatureX, const int 
     flag.empty();
 }
 
-void heroBeDamaged()
+const void heroBeDamaged()
 {
     for (int i = 0; i < Creature::creatureTotal; i++)
     {
@@ -728,7 +728,7 @@ void heroBeDamaged()
     }
 }
 
-void creatureInformation()
+const void creatureInformation()
 {
     Creature::creatureNum = 0;
     for (int i = 0; i < Creature::creatureTotal; i++)
@@ -756,7 +756,7 @@ void creatureInformation()
     screen.push_back(ss.str());
 }
 
-void generateTrigger()
+const void generateTrigger()
 {
     int triggerX;
     int triggerY;
@@ -770,7 +770,7 @@ void generateTrigger()
     Trigger::triggerTotal++;
 }
 
-void draw()
+const void draw()
 {
     screen = dungeon.outputMap();
     for (int i = 0; i < Trigger::triggerTotal; i++)
@@ -810,7 +810,7 @@ void draw()
     printScreen();
 }
 
-void printScreen()
+const void printScreen()
 {
     system("CLS");
     gameInformation();
@@ -820,7 +820,7 @@ void printScreen()
     }
 }
 
-void isGameOver()
+const void isGameOver()
 {
     if (!hero.isLive())
     {
@@ -859,7 +859,7 @@ void isGameOver()
     }
 }
 
-bool DemonSlayer::isMount()
+const bool DemonSlayer::isMount() const
 {
     vector<string> filePathes;
     LoadFiles loadFiles;
@@ -867,7 +867,7 @@ bool DemonSlayer::isMount()
     return filePathes.size() > 0;
 }
 
-void DemonSlayer::BreathOfThunder()
+const void DemonSlayer::BreathOfThunder()
 {
     system("CLS");
     fontsize(128, 128);
@@ -968,7 +968,7 @@ void DemonSlayer::BreathOfThunder()
     Sleep(1000);
 }
 
-void DemonSlayer::BreathOfWater1()
+const void DemonSlayer::BreathOfWater1()
 {
     system("CLS");
     fontsize(128, 128);
@@ -1065,7 +1065,7 @@ void DemonSlayer::BreathOfWater1()
     Sleep(1000);
 }
 
-void DemonSlayer::BreathOfWater11()
+const void DemonSlayer::BreathOfWater11()
 {
     system("CLS");
     fontsize(128, 128);
