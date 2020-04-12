@@ -13,8 +13,10 @@
 #include <mciapi.h>     //mp3
 //these two headers are already included in the <Windows.h> header
 #pragma comment(lib, "Winmm.lib") //mp3
+#include "Direction.h"
 #include "Dungeon.h"
 #include "Hero.h"
+#include "Arrow.h"
 #include "Creature.h"
 #include "Trigger.h"
 #include "Trap.h"
@@ -23,31 +25,18 @@
 using namespace std;
 using std::ifstream;
 
-int dx[] = { 0, 0, -1, 1 };
-int dy[] = { -1, 1, 0, 0 };
-
 const int defaultKeyNum = 16;
 const int defaultcreatureNum = 3;
-const int defaultCreatureSpeed = 300;
-const int defaultHeroInvincibleTime = 700;
-const int defaultTriggerGenerateTimeFrame = 2000;
 bool key[defaultKeyNum] = { false };
 Dungeon dungeon;
 Hero hero;
+vector<Arrow> arrows;
 vector<Creature> creatures;
 vector<char> creaturesSkinList;
 vector<Trigger> triggers;
 vector<Trap> traps;
-int Creature::creatureTotal;
-int Creature::creatureNum;
-int Trigger::Trigger::triggerTotal;
-int Trap::trapTotal;
-char Trap::trapShape = 'x';
 static int gameState;
-static clock_t InvincibleEnd;
-static clock_t InvincibleStart;
 static bool isMountDemonSlayer;
-bool Trap::trapIsTouched;
 vector<string> screen;
 
 enum KeyState
@@ -58,6 +47,7 @@ enum KeyState
     A,
     D,
     SPACE,
+    J,
     UA,
     DA,
     LA,
@@ -101,6 +91,7 @@ const void fontsize(const int, const int);
 const void getKey();
 const void update();
 const bool menu();
+const void gaming();
 const void gameInformation();
 //game mode
 const void quickGame();
@@ -119,6 +110,7 @@ const void trackHero(const int heroX, const int heroY, const int creatureX, cons
 const void heroBeDamaged();
 const void creatureInformation();
 const void generateTrigger();
+const void arrowsTurn();
 const void draw();
 const void printScreen();
 const void isGameOver();
@@ -129,48 +121,12 @@ int main()
     srand(time(NULL));
     maximumWindows();
 
-    Trap::trapTotal = 0;
-    Trap::trapIsTouched = false;
     if (!menu())
     {
         return 0;
     }
-    gameState = PREPARING;
-    Trigger::triggerTotal = 0;
 
-    update();
-    gameState = GAMING;
-    clock_t creatureTimeBegin = clock();
-    clock_t creatureTimeEnd;
-    clock_t triggerTimeBegin = clock();
-    clock_t triggerTimeEnd;
-    do
-    {
-        if (_kbhit())
-        {
-            getKey();
-            update();
-        }
-        if (gameState == GAMEOVER)
-        {
-            break;
-        }
-        creatureTimeEnd = clock();
-        if (creatureTimeEnd - creatureTimeBegin > defaultCreatureSpeed)
-        {
-            creaturesTurn();
-            creatureTimeBegin = clock();
-        }
-        triggerTimeEnd = clock();
-        if (triggerTimeEnd - triggerTimeBegin > defaultTriggerGenerateTimeFrame)
-        {
-            generateTrigger();
-            triggerTimeBegin = clock();
-        }
-        heroBeDamaged();
-        draw();
-        isGameOver();
-    }while (!key[ESC] && gameState != GAMEOVER);
+    gaming();
 
     return 0;
 }
@@ -223,6 +179,10 @@ const void getKey()
         break;
     case ' ':
         key[SPACE] = true;
+        break;
+    case 'j':
+    case 'J':
+        key[J] = true;
         break;
     case 27:
         key[ESC] = true;
@@ -297,6 +257,16 @@ const void update()
                 {
                     traps[i].destroyTrap(hero.slash(traps[i].getX(), traps[i].getY()) > 0);
                 }
+            }
+        }
+        else if (key[J])
+        {
+            arrows.push_back(Arrow(hero.getSwordDirection(), hero.getX(), hero.getY()));
+            int arrowX = arrows.back().getX();
+            int arrowY = arrows.back().getY();
+            if (dungeon.isBoundary(arrowX, arrowY) || dungeon.isObstacle(arrowX, arrowY))
+            {
+                arrows.back().arrowEnd();
             }
         }
         else if (isMountDemonSlayer && key[ZERO])
@@ -378,10 +348,41 @@ const bool menu()
     }
 }
 
+const void gaming()
+{
+    gameState = PREPARING;
+    update();
+    gameState = GAMING;
+    do
+    {
+        if (_kbhit())
+        {
+            getKey();
+            update();
+        }
+        if (gameState == GAMEOVER)
+        {
+            break;
+        }
+        arrowsTurn();
+        if (Creature::canCreaturesTurn())
+        {
+            creaturesTurn();
+        }
+        if (Trigger::canGenerate())
+        {
+            generateTrigger();
+        }
+        heroBeDamaged();
+        draw();
+        isGameOver();
+    } while (!key[ESC] && gameState != GAMEOVER);
+}
+
 const void gameInformation()
 {
     cout << "Press WASD or arrow keys to control Hero(icon " << hero.getSkin() << ").\n";
-    cout << "Press Space to attack in the direction where Hero is facing.\n";
+    cout << "Press Space(sword) or J(arrow) to attack in the direction where Hero is facing.\n";
     cout << "Avoid touching enemies (icon ";
     for (int i = 0; i < creaturesSkinList.size(); i++)
     {
@@ -570,7 +571,6 @@ const bool loadFindTrapLocation(vector<Trap>& traps, const int trapY, string& st
     {
         traps.push_back(Trap(trapX, trapY, trapSkin));
         stringT[trapX] = floor;
-        Trap::trapTotal++;
         return true;
     }
     return false;
@@ -718,12 +718,7 @@ const void heroBeDamaged()
     {
         if (creatures[i].isLive() && hero.touchCreature(creatures[i].getX(), creatures[i].getY()))
         {
-            InvincibleStart = hero.hurt(creatures[i].damage());
-            InvincibleEnd = clock();
-            if (InvincibleEnd - InvincibleStart > defaultHeroInvincibleTime)
-            {
-                hero.vincible();
-            }
+            hero.hurt(creatures[i].damage());
         }
     }
 }
@@ -770,6 +765,31 @@ const void generateTrigger()
     Trigger::triggerTotal++;
 }
 
+const void arrowsTurn()
+{
+    int arrowNextStepX, arrowNextStepY;
+    for (int arrowIndex = 0; arrowIndex < Arrow::arrowTotal; arrowIndex++)
+    {
+        arrows[arrowIndex].nextStep(arrowNextStepX, arrowNextStepY);
+        if (arrows[arrowIndex].isExist())
+        {
+            if (dungeon.isBoundary(arrowNextStepX, arrowNextStepY) || dungeon.isObstacle(arrowNextStepX, arrowNextStepY))
+            {
+                arrows[arrowIndex].arrowEnd();
+                continue;
+            }
+            arrows[arrowIndex].arrowMove();
+            for (int creatureIndex = 0; creatureIndex < Creature::creatureTotal; creatureIndex++)
+            {
+                if (creatures[creatureIndex].isLive())
+                {
+                    hero.getExp(creatures[creatureIndex].hurt(arrows[arrowIndex].damage(creatures[creatureIndex].getX(), creatures[creatureIndex].getY())));
+                }
+            }
+        }
+    }
+}
+
 const void draw()
 {
     screen = dungeon.outputMap();
@@ -785,6 +805,13 @@ const void draw()
         if (traps[i].isExist())
         {
             screen[traps[i].getY()][traps[i].getX()] = traps[i].printTrap();
+        }
+    }
+    for (int arrowIndex = 0; arrowIndex < Arrow::arrowTotal; arrowIndex++)
+    {
+        if (arrows[arrowIndex].isExist())
+        {
+            screen[arrows[arrowIndex].getY()][arrows[arrowIndex].getX()] = arrows[arrowIndex].getShape();
         }
     }
     if (hero.isLive())

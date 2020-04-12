@@ -1,9 +1,13 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <sstream>
 #include "Creature.h"
 using namespace std;
 
+int Creature::creatureTotal = 0;
+int Creature::creatureNum = 0;
+clock_t Creature::creatureTimeBegin = clock();
 Creature::Creature()
 {
 
@@ -108,6 +112,16 @@ const int Creature::hurt(const int damage)
 	return 0;
 }
 
+const bool Creature::canCreaturesTurn()
+{
+	if (clock() - creatureTimeBegin > defaultCreatureSpeed)
+	{
+		creatureTimeBegin = clock();
+		return true;
+	}
+	return false;
+}
+
 const void Creature::seeHero(const int heroX, const int heroY)
 {
 	if (x > heroX && x - heroX <= 3 && y == heroY)
@@ -198,7 +212,8 @@ const string Creature::information() const
 		creatureInformation += string(maxHealth + 1, ' ');
 	}
 	creatureInformation += to_string(health);
-	creatureInformation += " Energy:" + string(energy, '#') + string(maxEnergy - energy + 1, ' ') + to_string(energy) + " ";
+	creatureInformation += " Energy:" + string(energy, '#') + string(maxEnergy - energy + 1, ' ') + to_string(energy);
+	creatureInformation += " attack: " + to_string(attack) + " ";
 	if (state == CAlert)
 	{
 		if (heroDirection == Beside)

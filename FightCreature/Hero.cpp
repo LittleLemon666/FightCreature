@@ -37,7 +37,10 @@ const int Hero::getSwordDirection() const
 
 const void Hero::vincible()
 {
-	state = HLive;
+	if (clock() - InvincibleStart > defaultHeroInvincibleTime)
+	{
+		state = HLive;
+	}
 }
 
 const void Hero::setHeroLocation(const int dungeonWidth, const int dungeonHeight, int&& mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
@@ -118,11 +121,13 @@ const bool Hero::touchCreature(const int creatureX, const int creatureY)
 	return x == creatureX && y == creatureY;
 }
 
-const clock_t Hero::hurt(const int damage)
+const void Hero::hurt(const int damage)
 {
 	if (state == HInvincible)
 	{
-		return InvincibleBegin;
+		InvincibleStart = InvincibleBegin;
+		vincible();
+		return;
 	}
 	health -= damage;
 	if (health <= 0)
@@ -133,7 +138,7 @@ const clock_t Hero::hurt(const int damage)
 	{
 		state = HInvincible;
 	}
-	return InvincibleBegin = clock();
+	InvincibleStart = InvincibleBegin = clock();
 }
 
 const int Hero::slash(const int creatureX, const int creatureY) const

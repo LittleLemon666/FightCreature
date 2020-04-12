@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Dungeon.cpp" />
     <ClCompile Include="FightCreature.cpp" />
@@ -157,7 +158,9 @@
     <ClCompile Include="Trigger.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arrow.h" />
     <ClInclude Include="Creature.h" />
+    <ClInclude Include="Direction.h" />
     <ClInclude Include="Dungeon.h" />
     <ClInclude Include="Hero.h" />
     <ClInclude Include="LoadFiles.h" />

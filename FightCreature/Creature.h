@@ -20,6 +20,7 @@ enum CreatureState
 	CDeath
 };
 
+using namespace std;
 class Creature
 {
 private:
@@ -34,6 +35,8 @@ private:
 	int maxEnergy = 1;
 	int exp = 1;
 	char skin = 'C';
+	static const int defaultCreatureSpeed = 300;
+	static clock_t creatureTimeBegin;
 
 public:
 	Creature();
@@ -47,11 +50,12 @@ public:
 	const int damage() const;
 	const void setCreatureLocation(const int dungeonWidth, const int dungeonHeight, const int mode);
 	const void loadCreatureLocation(const int _x, const int _y);
-	const int loadCreatureInformation(std::vector<std::string>& stringLine, const int lineIndex, std::vector<char>& creaturesSkineList, const int creaturesPropertyIndex);
+	const int loadCreatureInformation(vector<string>& stringLine, const int lineIndex, vector<char>& creaturesSkineList, const int creaturesPropertyIndex);
 	const int hurt(const int damage);
+	static const bool canCreaturesTurn();
 	const void seeHero(const int heroX, const int heroY);
 	const void move(const int _x, const int _y);
 	const void energyRecovery();
-	const std::string information() const;
+	const string information() const;
 	const char getSkin() const;
 };

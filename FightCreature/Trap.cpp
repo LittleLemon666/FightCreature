@@ -1,8 +1,12 @@
 #include "Trap.h"
 
+int Trap::trapTotal = 0;
+bool Trap::trapIsTouched = false;
+char Trap::trapShape = 'x';
 Trap::Trap(const int _x, const int _y, const char _shape) :x(_x), y(_y), shape(_shape)
 {
 	trapShape = _shape;
+	trapTotal++;
 }
 
 Trap::~Trap()

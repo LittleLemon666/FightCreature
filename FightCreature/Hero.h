@@ -14,6 +14,7 @@ enum SwordDirection
 	SEast
 };
 
+using namespace std;
 class Hero
 {
 private:
@@ -26,7 +27,10 @@ private:
 	int swordDirection = SSouth;
 	int experience = 0;
 	int level = 1;
+	clock_t InvincibleStart;
 	clock_t InvincibleBegin = clock();
+	clock_t InvincibleEnd;
+	static const int defaultHeroInvincibleTime = 700;
 	char skin = 'H';
 
 public:
@@ -38,12 +42,12 @@ public:
 	const int getSwordDirection() const;
 	const void vincible();
 	const void setHeroLocation(const int dungeonWidth, const int dungeonHeight, int&& mode);
-	const int loadHeroInformation(const int _x, const int _y, std::vector<std::string> lineString, int lineIndex, const char heroSkin);
+	const int loadHeroInformation(const int _x, const int _y, vector<string> lineString, int lineIndex, const char heroSkin);
 	const void move(const int _x, const int _y);
 	const bool touchCreature(const int creatureX, const int creatureY);
-	const clock_t hurt(const int damage);
+	const void hurt(const int damage);
 	const int slash(const int creatureX, const int creatureY) const;
 	const void getExp(const int exp);
-	const std::string information() const;
+	const string information() const;
 	const char getSkin() const;
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include "Point.h"
 
+using namespace std;
 class Dungeon
 {
 private:
@@ -8,7 +9,7 @@ private:
 	int height = 14;
 	char wall = '#';
 	char floor = ' ';
-	std::vector<std::string> dungeonMap;
+	vector<string> dungeonMap;
 
 public:
 	Dungeon();
@@ -20,10 +21,10 @@ public:
 	const bool isBoundary(int x, int y) const;
 	const void fill();
 	const void generatePlain();
-	const int loadMap(std::vector<std::string> lineString);
+	const int loadMap(vector<string> lineString);
 	const void customMap();
-	const void generateTerrain(const int heroX, const int heroY, std::vector<Point> creaturePoints, const int creatureNum);
+	const void generateTerrain(const int heroX, const int heroY, vector<Point> creaturePoints, const int creatureNum);
 	const void generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY);
 	const bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);
-	std::vector<std::string> outputMap() const;
+	vector<string> outputMap() const;
 };
