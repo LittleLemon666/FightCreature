@@ -13,6 +13,7 @@
 #include <mciapi.h>     //mp3
 //these two headers are already included in the <Windows.h> header
 #pragma comment(lib, "Winmm.lib") //mp3
+#include "TextColorChange.h"
 #include "Direction.h"
 #include "Dungeon.h"
 #include "Hero.h"
@@ -90,6 +91,7 @@ const void maximumWindows();
 const void fontsize(const int, const int);
 const void getKey();
 const void update();
+const void clearInputBuffer();
 const bool menu();
 const void gaming();
 const void gameInformation();
@@ -309,6 +311,14 @@ const void update()
                 }
             }
         }
+    }
+}
+
+const void clearInputBuffer()
+{
+    while (_kbhit())
+    {
+        _getch();
     }
 }
 
@@ -840,10 +850,24 @@ const void draw()
 const void printScreen()
 {
     system("CLS");
+    TextColor(WHITE, BLACK, out);
     gameInformation();
-    for (string line : screen)
+    for (int lineIndex = 0; lineIndex < screen.size(); lineIndex++)
     {
-        cout << line << "\n";
+        if (lineIndex == hero.getY())
+        {
+            TextColor(WHITE, BLACK, out);
+            cout << screen[lineIndex].substr(0, hero.getX());
+            TextColor(LIGHTCYAN, BLACK, out);
+            cout << screen[lineIndex][hero.getX()];
+            TextColor(WHITE, BLACK, out);
+            cout << screen[lineIndex].substr(hero.getX() + 1, screen[lineIndex].length() - hero.getX()) << "-\n";
+        }
+        else
+        {
+            TextColor(WHITE, BLACK, out);
+            cout << screen[lineIndex] << "\n";
+        }
     }
 }
 
@@ -902,6 +926,7 @@ const void DemonSlayer::BreathOfThunder()
     mciSendString(loadFiles.ConvertString("close mp3"), NULL, 0, NULL);
     mciSendString(loadFiles.ConvertString("open \"extensions\\BreathOfThunder.mp3\" type mpegvideo alias mp3"), NULL, 0, NULL);
     mciSendString(loadFiles.ConvertString("play mp3"), NULL, 0, NULL);
+    TextColor(YELLOW, BLACK, out);
     cout << "\n ";
     Sleep(2100);
     cout << "雷";
@@ -929,6 +954,7 @@ const void DemonSlayer::BreathOfThunder()
     cout << "閃";
     Sleep(1000);
     fontsize(16, 16);
+    TextColor(WHITE, BLACK, out);
     draw();
     int nextX = hero.getX() + dx[hero.getSwordDirection()];
     int nextY = hero.getY() + dy[hero.getSwordDirection()];
@@ -993,6 +1019,7 @@ const void DemonSlayer::BreathOfThunder()
         hero.getExp(creatures[index].hurt(100));
     }
     Sleep(1000);
+    clearInputBuffer();
 }
 
 const void DemonSlayer::BreathOfWater1()
@@ -1003,6 +1030,7 @@ const void DemonSlayer::BreathOfWater1()
     mciSendString(loadFiles.ConvertString("close mp3"), NULL, 0, NULL);
     mciSendString(loadFiles.ConvertString("open \"extensions\\BreathOfWater1.mp3\" type mpegvideo alias mp3"), NULL, 0, NULL);
     mciSendString(loadFiles.ConvertString("play mp3"), NULL, 0, NULL);
+    TextColor(LIGHTCYAN, BLACK, out);
     cout << "\n ";
     Sleep(280);
     cout << "全";
@@ -1011,6 +1039,7 @@ const void DemonSlayer::BreathOfWater1()
     Sleep(200);
     cout << "中";
     Sleep(1100);
+    cout << "\n    ";
     cout << "水";
     Sleep(200);
     cout << "之";
@@ -1019,14 +1048,14 @@ const void DemonSlayer::BreathOfWater1()
     Sleep(200);
     cout << "吸";
     Sleep(650);
-    cout << "\n        ";
+    cout << "\n         ";
     cout << "壹";
     Sleep(150);
     cout << "之";
     Sleep(150);
     cout << "型";
     Sleep(600);
-    cout << "\n             ";
+    cout << "\n            ";
     cout << "水";
     Sleep(150);
     cout << "面";
@@ -1034,6 +1063,7 @@ const void DemonSlayer::BreathOfWater1()
     cout << "斬";
     Sleep(1000);
     fontsize(16, 16);
+    TextColor(WHITE, BLACK, out);
     draw();
     int nextX = hero.getX() + dx[hero.getSwordDirection()];
     int nextY = hero.getY() + dy[hero.getSwordDirection()];
@@ -1090,6 +1120,7 @@ const void DemonSlayer::BreathOfWater1()
         hero.getExp(creatures[index].hurt(100));
     }
     Sleep(1000);
+    clearInputBuffer();
 }
 
 const void DemonSlayer::BreathOfWater11()
@@ -1100,6 +1131,7 @@ const void DemonSlayer::BreathOfWater11()
     mciSendString(loadFiles.ConvertString("close mp3"), NULL, 0, NULL);
     mciSendString(loadFiles.ConvertString("open \"extensions\\BreathOfWater11.mp3\" type mpegvideo alias mp3"), NULL, 0, NULL);
     mciSendString(loadFiles.ConvertString("play mp3"), NULL, 0, NULL);
+    TextColor(LIGHTCYAN, BLACK, out);
     cout << "\n ";
     Sleep(1100);
     cout << "全";
@@ -1136,6 +1168,7 @@ const void DemonSlayer::BreathOfWater11()
     cout << "靜";
     Sleep(1000);
     fontsize(16, 16);
+    TextColor(WHITE, BLACK, out);
     draw();
     Sleep(500);
     for (int i = 0; i < Creature::creatureTotal; i++)
@@ -1148,4 +1181,5 @@ const void DemonSlayer::BreathOfWater11()
     }
     printScreen();
     Sleep(1000);
+    clearInputBuffer();
 }

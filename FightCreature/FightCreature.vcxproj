@@ -154,6 +154,7 @@
     <ClCompile Include="Hero.cpp" />
     <ClCompile Include="LoadFiles.cpp" />
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="TextColorChange.cpp" />
     <ClCompile Include="Trap.cpp" />
     <ClCompile Include="Trigger.cpp" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="Hero.h" />
     <ClInclude Include="LoadFiles.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="TextColorChange.h" />
     <ClInclude Include="Trap.h" />
     <ClInclude Include="Trigger.h" />
   </ItemGroup>

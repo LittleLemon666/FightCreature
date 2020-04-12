@@ -42,6 +42,9 @@
     <ClCompile Include="Arrow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextColorChange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Creature.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Direction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextColorChange.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
