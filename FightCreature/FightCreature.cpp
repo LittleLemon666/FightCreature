@@ -789,7 +789,7 @@ const void arrowsTurn()
                 continue;
             }
             arrows[arrowIndex].arrowMove();
-            for (int creatureIndex = 0; creatureIndex < Creature::creatureTotal; creatureIndex++)
+            for (int creatureIndex = 0; creatureIndex < Creature::creatureTotal && arrows[arrowIndex].isExist(); creatureIndex++)
             {
                 if (creatures[creatureIndex].isLive())
                 {
