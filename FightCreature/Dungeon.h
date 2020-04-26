@@ -1,7 +1,10 @@
 #pragma once
 #include "Point.h"
-
+#include "Creature.h"
+#include "Trigger.h"
+#include "Trap.h"
 using namespace std;
+
 class Dungeon
 {
 private:
@@ -27,4 +30,9 @@ public:
 	const void generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY);
 	const bool searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop);
 	vector<string> outputMap() const;
+	vector<Creature> creatures;
+	vector<char> creaturesSkinList;
+	vector<Trigger> triggers;
+	vector<Trap> traps;
+	static int dungeonIndex;
 };

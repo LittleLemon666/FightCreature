@@ -1,4 +1,10 @@
 #pragma once
+#include <iostream>
+#include <iomanip> //clock_t
+#include <vector>
+#include <sstream>
+using namespace std;
+
 enum heroState
 {
 	HLive,
@@ -14,7 +20,6 @@ enum SwordDirection
 	SEast
 };
 
-using namespace std;
 class Hero
 {
 private:
@@ -50,4 +55,5 @@ public:
 	const void getExp(const int exp);
 	const string information() const;
 	const char getSkin() const;
+
 };

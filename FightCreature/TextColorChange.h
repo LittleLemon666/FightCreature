@@ -22,3 +22,5 @@ enum Color
 };
 
 void TextColor(int fontcolor, int backgroundcolor, HANDLE screen);
+
+const void fontsize(const int a, const int b, HANDLE out);

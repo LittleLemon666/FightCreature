@@ -1,7 +1,3 @@
-#include <iostream>
-#include <iomanip> //clock_t
-#include <vector>
-#include <sstream>
 #include "Hero.h"
 using namespace std;
 

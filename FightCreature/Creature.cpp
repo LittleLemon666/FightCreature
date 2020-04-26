@@ -1,7 +1,3 @@
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <sstream>
 #include "Creature.h"
 using namespace std;
 

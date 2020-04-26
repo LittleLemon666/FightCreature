@@ -5,10 +5,10 @@
 #include <sstream>
 #include "Dungeon.h"
 using namespace std;
+int Dungeon::dungeonIndex = 0;
 
 Dungeon::Dungeon()
 {
-
 }
 
 Dungeon::~Dungeon()

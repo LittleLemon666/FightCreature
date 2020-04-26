@@ -1,9 +1,5 @@
-﻿  FightCreature.cpp
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(123,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(397,23): warning C4018: '<': signed/unsigned mismatch
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(562,23): warning C4018: '<': signed/unsigned mismatch
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(721,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(722,15): warning C4834: discarding return value of function with 'nodiscard' attribute
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(855,39): warning C4018: '<': signed/unsigned mismatch
-D:\Programming\C++GameLab\FightCreature\FightCreature\FightCreature.cpp(557): warning C4715: 'loadFindHeroLocation': not all control paths return a value
+﻿  Chapter.cpp
+D:\Programming\C++GameLab\FightCreature\FightCreature\Chapter.cpp(21,57): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\C++GameLab\FightCreature\FightCreature\Chapter.cpp(341,55): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\C++GameLab\FightCreature\FightCreature\Chapter.cpp(621,39): warning C4018: '<': signed/unsigned mismatch
   FightCreature.vcxproj -> D:\Programming\C++GameLab\FightCreature\Debug\FightCreature.exe

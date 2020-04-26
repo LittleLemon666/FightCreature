@@ -148,10 +148,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Arrow.cpp" />
+    <ClCompile Include="Chapter.cpp" />
     <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Dungeon.cpp" />
     <ClCompile Include="FightCreature.cpp" />
     <ClCompile Include="Hero.cpp" />
+    <ClCompile Include="KeyState.cpp" />
     <ClCompile Include="LoadFiles.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="TextColorChange.cpp" />
@@ -160,10 +162,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arrow.h" />
+    <ClInclude Include="Chapter.h" />
     <ClInclude Include="Creature.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Dungeon.h" />
     <ClInclude Include="Hero.h" />
+    <ClInclude Include="KeyState.h" />
     <ClInclude Include="LoadFiles.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="TextColorChange.h" />

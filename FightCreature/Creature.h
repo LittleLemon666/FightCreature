@@ -1,4 +1,11 @@
 #pragma once
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <sstream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
 enum Direction
 {
 	North,
@@ -36,7 +43,6 @@ private:
 	int exp = 1;
 	char skin = 'C';
 	static const int defaultCreatureSpeed = 300;
-	static clock_t creatureTimeBegin;
 
 public:
 	Creature();
@@ -58,4 +64,6 @@ public:
 	const void energyRecovery();
 	const string information() const;
 	const char getSkin() const;
+	static clock_t creatureTimeBegin;
+
 };
