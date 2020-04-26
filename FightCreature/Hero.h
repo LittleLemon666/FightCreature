@@ -3,6 +3,7 @@
 #include <iomanip> //clock_t
 #include <vector>
 #include <sstream>
+#include "Point.h"
 using namespace std;
 
 enum heroState
@@ -44,14 +45,15 @@ public:
 	const bool isLive() const;
 	const int getX() const;
 	const int getY() const;
+	const Point getPosition() const;
 	const int getSwordDirection() const;
 	const void vincible();
-	const void setHeroLocation(const int dungeonWidth, const int dungeonHeight, int&& mode);
+	const void setHeroLocation(const Point dungeonRectangle, int&& mode);
 	const int loadHeroInformation(const int _x, const int _y, vector<string> lineString, int lineIndex, const char heroSkin);
-	const void move(const int _x, const int _y);
-	const bool touchCreature(const int creatureX, const int creatureY);
+	const void move(const Point dxy);
+	const bool touchCreature(const Point creaturePosition);
 	const void hurt(const int damage);
-	const int slash(const int creatureX, const int creatureY) const;
+	const int slash(const Point creaturePosition) const;
 	const void getExp(const int exp);
 	const string information() const;
 	const char getSkin() const;

@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include "Point.h"
 enum Direction
 {
 	North,
@@ -53,14 +54,15 @@ public:
 	const bool isAlert() const;
 	const int getX() const;
 	const int getY() const;
+	const Point getPosition() const;
 	const int damage() const;
-	const void setCreatureLocation(const int dungeonWidth, const int dungeonHeight, const int mode);
-	const void loadCreatureLocation(const int _x, const int _y);
+	const void setCreatureLocation(const Point dungeonRectangle, const int mode);
+	const void loadCreatureLocation(const Point creaturePosition);
 	const int loadCreatureInformation(vector<string>& stringLine, const int lineIndex, vector<char>& creaturesSkineList, const int creaturesPropertyIndex);
 	const int hurt(const int damage);
 	static const bool canCreaturesTurn();
-	const void seeHero(const int heroX, const int heroY);
-	const void move(const int _x, const int _y);
+	const void seeHero(const Point heroPosition);
+	const void move(const Point dxy);
 	const void energyRecovery();
 	const string information() const;
 	const char getSkin() const;

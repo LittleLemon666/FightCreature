@@ -110,7 +110,7 @@ const void Chapter::update(bool key[])
             return;
         }
 
-        heroMove(_x, _y);
+        heroMove(Point(_x, _y));
         objectAction();
     }
 }
@@ -119,16 +119,16 @@ const void Chapter::quickGame()
 {
     vector<Point> point;
     dungeons[Dungeon::dungeonIndex].generatePlain();
-    hero.setHeroLocation(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight(), QuickGame);
+    hero.setHeroLocation(Point(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight()), QuickGame);
     Creature::creatureTotal = defaultcreatureNum;
     Creature::creatureNum = Creature::creatureTotal;
     for (int i = 0; i < Creature::creatureTotal; i++)
     {
         dungeons[Dungeon::dungeonIndex].creatures.push_back(Creature());
-        dungeons[Dungeon::dungeonIndex].creatures[i].setCreatureLocation(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight(), QuickGame);
+        dungeons[Dungeon::dungeonIndex].creatures[i].setCreatureLocation(Point(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight()), QuickGame);
         point.push_back(Point(dungeons[Dungeon::dungeonIndex].creatures[i].getX(), dungeons[Dungeon::dungeonIndex].creatures[i].getY()));
     }
-    dungeons[Dungeon::dungeonIndex].generateTerrain(hero.getX(), hero.getY(), point, Creature::creatureTotal);
+    dungeons[Dungeon::dungeonIndex].generateTerrain(hero.getPosition(), point, Creature::creatureTotal);
     draw();
     generateTerrainAndRegenerateTerrain();
 }
@@ -180,11 +180,11 @@ const int Chapter::loadGame(bool key[])
 const void Chapter::customGame()
 {
     dungeons[Dungeon::dungeonIndex].customMap();
-    hero.setHeroLocation(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight(), CustomGame);
+    hero.setHeroLocation(Point(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight()), CustomGame);
     Creature::creatureTotal = 1;
     Creature::creatureNum = Creature::creatureTotal;
     dungeons[Dungeon::dungeonIndex].creatures.push_back(Creature());
-    dungeons[Dungeon::dungeonIndex].creatures[0].setCreatureLocation(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight(), CustomGame);
+    dungeons[Dungeon::dungeonIndex].creatures[0].setCreatureLocation(Point(dungeons[Dungeon::dungeonIndex].getWidth(), dungeons[Dungeon::dungeonIndex].getHeight()), CustomGame);
     draw();
     generateTerrainAndRegenerateTerrain();
 }
@@ -204,7 +204,7 @@ const void Chapter::generateTerrainAndRegenerateTerrain()
                 dungeons[Dungeon::dungeonIndex].fill();
                 for (int i = 0; i < Creature::creatureTotal; i++)
                 {
-                    dungeons[Dungeon::dungeonIndex].generateTerrain(hero.getX(), hero.getY(), dungeons[Dungeon::dungeonIndex].creatures[i].getX(), dungeons[Dungeon::dungeonIndex].creatures[i].getY());
+                    dungeons[Dungeon::dungeonIndex].generateTerrain(hero.getPosition(), dungeons[Dungeon::dungeonIndex].creatures[i].getPosition());
                 }
                 break;
             }
@@ -344,7 +344,7 @@ const bool Chapter::loadFindCreatureLocation(vector<Creature>& creature, const i
         if (creatureX != -1)
         {
             creature.push_back(Creature());
-            creature[Creature::creatureTotal++].loadCreatureLocation(creatureX, creatureY);
+            creature[Creature::creatureTotal++].loadCreatureLocation(Point(creatureX, creatureY));
             stringT[creatureX] = floor;
             creaturesPropertyIndex.push_back(creatureSkinIndex);
             return true;
@@ -371,34 +371,34 @@ const void Chapter::heroSwordAttack()
     {
         if (dungeons[Dungeon::dungeonIndex].creatures[i].isLive())
         {
-            hero.getExp(dungeons[Dungeon::dungeonIndex].creatures[i].hurt(hero.slash(dungeons[Dungeon::dungeonIndex].creatures[i].getX(), dungeons[Dungeon::dungeonIndex].creatures[i].getY())));
+            hero.getExp(dungeons[Dungeon::dungeonIndex].creatures[i].hurt(hero.slash(dungeons[Dungeon::dungeonIndex].creatures[i].getPosition())));
         }
     }
     for (int i = 0; i < Trap::trapTotal; i++)
     {
         if (dungeons[Dungeon::dungeonIndex].traps[i].isExist())
         {
-            dungeons[Dungeon::dungeonIndex].traps[i].destroyTrap(hero.slash(dungeons[Dungeon::dungeonIndex].traps[i].getX(), dungeons[Dungeon::dungeonIndex].traps[i].getY()) > 0);
+            dungeons[Dungeon::dungeonIndex].traps[i].destroyTrap(hero.slash(dungeons[Dungeon::dungeonIndex].traps[i].getPosition()) > 0);
         }
     }
 }
 
 const void Chapter::heroBowAttack()
 {
-    arrows.push_back(Arrow(hero.getSwordDirection(), hero.getX(), hero.getY()));
+    arrows.push_back(Arrow(hero.getSwordDirection(), hero.getPosition()));
     int arrowX = arrows.back().getX();
     int arrowY = arrows.back().getY();
-    if (dungeons[Dungeon::dungeonIndex].isBoundary(arrowX, arrowY) || dungeons[Dungeon::dungeonIndex].isObstacle(arrowX, arrowY))
+    if (dungeons[Dungeon::dungeonIndex].isBoundary(Point(arrowX, arrowY)) || dungeons[Dungeon::dungeonIndex].isObstacle(Point(arrowX, arrowY)))
     {
         arrows.back().arrowEnd();
     }
 }
 
-const void Chapter::heroMove(const int _x, const int _y)
+const void Chapter::heroMove(const Point dxy)
 {
-    if (!dungeons[Dungeon::dungeonIndex].isBoundary(hero.getX() + _x, hero.getY() + _y) && !dungeons[Dungeon::dungeonIndex].isObstacle(hero.getX() + _x, hero.getY() + _y))
+    if (!dungeons[Dungeon::dungeonIndex].isBoundary(Point(hero.getX() + dxy.X, hero.getY() + dxy.Y)) && !dungeons[Dungeon::dungeonIndex].isObstacle(Point(hero.getX() + dxy.X, hero.getY() + dxy.Y)))
     {
-        hero.move(_x, _y);
+        hero.move(dxy);
     }
 }
 
@@ -408,23 +408,23 @@ const void Chapter::creaturesTurn()
     {
         if (dungeons[Dungeon::dungeonIndex].creatures[i].isLive())
         {
-            dungeons[Dungeon::dungeonIndex].creatures[i].seeHero(hero.getX(), hero.getY());
+            dungeons[Dungeon::dungeonIndex].creatures[i].seeHero(hero.getPosition());
             if (dungeons[Dungeon::dungeonIndex].creatures[i].isAlert() || Trap::trapIsTouched)
             {
-                trackHero(hero.getX(), hero.getY(), dungeons[Dungeon::dungeonIndex].creatures[i].getX(), dungeons[Dungeon::dungeonIndex].creatures[i].getY(), dungeons[Dungeon::dungeonIndex].creatures[i]);
+                trackHero(hero.getPosition(), dungeons[Dungeon::dungeonIndex].creatures[i].getPosition(), dungeons[Dungeon::dungeonIndex].creatures[i]);
             }
             else
             {
                 dungeons[Dungeon::dungeonIndex].creatures[i].energyRecovery();
             }
-            dungeons[Dungeon::dungeonIndex].creatures[i].seeHero(hero.getX(), hero.getY());
+            dungeons[Dungeon::dungeonIndex].creatures[i].seeHero(hero.getPosition());
         }
     }
 }
 
-const void Chapter::trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT) //problem
+const void Chapter::trackHero(const Point heroPosition, const Point creaturePosition, Creature& creatureT) //problem
 {
-    if (heroX == creatureX && heroY == creatureY)
+    if (heroPosition.X == creaturePosition.X && heroPosition.Y == creaturePosition.Y)
     {
         return;
     }
@@ -440,13 +440,13 @@ const void Chapter::trackHero(const int heroX, const int heroY, const int creatu
     }
     for (dir = 0; dir < 4; dir++)
     {
-        nextX = creatureX + dx[dir];
-        nextY = creatureY + dy[dir];
-        if (!dungeons[Dungeon::dungeonIndex].isBoundary(nextX, nextY) && !dungeons[Dungeon::dungeonIndex].isObstacle(nextX, nextY))
+        nextX = creaturePosition.X + dx[dir];
+        nextY = creaturePosition.Y + dy[dir];
+        if (!dungeons[Dungeon::dungeonIndex].isBoundary(Point(nextX, nextY)) && !dungeons[Dungeon::dungeonIndex].isObstacle(Point(nextX, nextY)))
         {
             place.push(Point(nextX, nextY));
             flag[nextY][nextX] = 1;
-            if (nextX == heroX && nextY == heroY)
+            if (nextX == heroPosition.X && nextY == heroPosition.Y)
             {
                 find = true;
                 break;
@@ -460,11 +460,11 @@ const void Chapter::trackHero(const int heroX, const int heroY, const int creatu
             dir = (dir + 1 + 4) % 4;
             nextX = place.front().X + dx[dir];
             nextY = place.front().Y + dy[dir];
-            if (!dungeons[Dungeon::dungeonIndex].isBoundary(nextX, nextY) && !dungeons[Dungeon::dungeonIndex].isObstacle(nextX, nextY) && flag[nextY][nextX] == 0)
+            if (!dungeons[Dungeon::dungeonIndex].isBoundary(Point(nextX, nextY)) && !dungeons[Dungeon::dungeonIndex].isObstacle(Point(nextX, nextY)) && flag[nextY][nextX] == 0)
             {
                 place.push(Point(nextX, nextY));
                 flag[nextY][nextX] = flag[place.front().Y][place.front().X] + 1;
-                if (nextX == heroX && nextY == heroY)
+                if (nextX == heroPosition.X && nextY == heroPosition.Y)
                 {
                     find = true;
                     break;
@@ -482,7 +482,7 @@ const void Chapter::trackHero(const int heroX, const int heroY, const int creatu
         {
             nextX = nowX + dx[dir];
             nextY = nowY + dy[dir];
-            if (dungeons[Dungeon::dungeonIndex].isBoundary(nextX, nextY) || dungeons[Dungeon::dungeonIndex].isObstacle(nextX, nextY))
+            if (dungeons[Dungeon::dungeonIndex].isBoundary(Point(nextX, nextY)) || dungeons[Dungeon::dungeonIndex].isObstacle(Point(nextX, nextY)))
             {
                 continue;
             }
@@ -495,14 +495,14 @@ const void Chapter::trackHero(const int heroX, const int heroY, const int creatu
         nowY = nextY;
         step--;
     }
-    creatureT.move(nextX - creatureX, nextY - creatureY);
+    creatureT.move(Point(nextX - creaturePosition.X, nextY - creaturePosition.Y));
 }
 
 const void Chapter::heroBeDamaged()
 {
     for (int i = 0; i < Creature::creatureTotal; i++)
     {
-        if (dungeons[Dungeon::dungeonIndex].creatures[i].isLive() && hero.touchCreature(dungeons[Dungeon::dungeonIndex].creatures[i].getX(), dungeons[Dungeon::dungeonIndex].creatures[i].getY()))
+        if (dungeons[Dungeon::dungeonIndex].creatures[i].isLive() && hero.touchCreature(dungeons[Dungeon::dungeonIndex].creatures[i].getPosition()))
         {
             hero.hurt(dungeons[Dungeon::dungeonIndex].creatures[i].damage());
         }
@@ -518,7 +518,7 @@ const void Chapter::generateTrigger()
         triggerX = rand() % dungeons[Dungeon::dungeonIndex].getWidth();
         triggerY = rand() % dungeons[Dungeon::dungeonIndex].getHeight();
 
-    } while (dungeons[Dungeon::dungeonIndex].isBoundary(triggerX, triggerY) || dungeons[Dungeon::dungeonIndex].isObstacle(triggerX, triggerY));
+    } while (dungeons[Dungeon::dungeonIndex].isBoundary(Point(triggerX, triggerY)) || dungeons[Dungeon::dungeonIndex].isObstacle(Point(triggerX, triggerY)));
     dungeons[Dungeon::dungeonIndex].triggers.push_back(Trigger(triggerX, triggerY));
     Trigger::triggerTotal++;
 }
@@ -531,7 +531,7 @@ const void Chapter::arrowsTurn()
         arrows[arrowIndex].nextStep(arrowNextStepX, arrowNextStepY);
         if (arrows[arrowIndex].isExist())
         {
-            if (dungeons[Dungeon::dungeonIndex].isBoundary(arrowNextStepX, arrowNextStepY) || dungeons[Dungeon::dungeonIndex].isObstacle(arrowNextStepX, arrowNextStepY))
+            if (dungeons[Dungeon::dungeonIndex].isBoundary(Point(arrowNextStepX, arrowNextStepY)) || dungeons[Dungeon::dungeonIndex].isObstacle(Point(arrowNextStepX, arrowNextStepY)))
             {
                 arrows[arrowIndex].arrowEnd();
                 continue;
@@ -541,7 +541,7 @@ const void Chapter::arrowsTurn()
             {
                 if (dungeons[Dungeon::dungeonIndex].creatures[creatureIndex].isLive())
                 {
-                    hero.getExp(dungeons[Dungeon::dungeonIndex].creatures[creatureIndex].hurt(arrows[arrowIndex].damage(dungeons[Dungeon::dungeonIndex].creatures[creatureIndex].getX(), dungeons[Dungeon::dungeonIndex].creatures[creatureIndex].getY())));
+                    hero.getExp(dungeons[Dungeon::dungeonIndex].creatures[creatureIndex].hurt(arrows[arrowIndex].damage(dungeons[Dungeon::dungeonIndex].creatures[creatureIndex].getPosition())));
                 }
             }
         }
@@ -745,10 +745,10 @@ const void Chapter::DemonSlayer_BreathOfThunder()
             }
         }
     }
-    while (!dungeons[Dungeon::dungeonIndex].isBoundary(nextX, nextY) && !dungeons[Dungeon::dungeonIndex].isObstacle(nextX, nextY))
+    while (!dungeons[Dungeon::dungeonIndex].isBoundary(Point(nextX, nextY)) && !dungeons[Dungeon::dungeonIndex].isObstacle(Point(nextX, nextY)))
     {
         Sleep(1);
-        hero.move(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]);
+        hero.move(Point(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]));
         if (creatureIndex < creatureHurtTotal)
         {
             screen[dungeons[Dungeon::dungeonIndex].creatures[creatureTIndex[creatureIndex]].getY()][dungeons[Dungeon::dungeonIndex].creatures[creatureTIndex[creatureIndex]].getX()] = '/';
@@ -843,11 +843,11 @@ const void Chapter::DemonSlayer_BreathOfWater1()
             findCreature = true;
         }
     }
-    while (!dungeons[Dungeon::dungeonIndex].isBoundary(nextX, nextY) && !dungeons[Dungeon::dungeonIndex].isObstacle(nextX, nextY) && !findCreature)
+    while (!dungeons[Dungeon::dungeonIndex].isBoundary(Point(nextX, nextY)) && !dungeons[Dungeon::dungeonIndex].isObstacle(Point(nextX, nextY)) && !findCreature)
     {
         //Sleep(1);
         screen[hero.getY()][hero.getX()] = dungeons[Dungeon::dungeonIndex].getFloorSkin();
-        hero.move(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]);
+        hero.move(Point(dx[hero.getSwordDirection()], dy[hero.getSwordDirection()]));
         screen[hero.getY()][hero.getX()] = hero.getSkin();
         for (int i = 0; i < Creature::creatureTotal; i++)
         {

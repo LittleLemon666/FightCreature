@@ -3,7 +3,7 @@
 using namespace std;
 
 int Arrow::arrowTotal = 0;
-Arrow::Arrow(const int _direction, const int heroX, const int heroY) : direction(_direction), x(heroX + dx[_direction]), y(heroY + dy[_direction])
+Arrow::Arrow(const int _direction, const Point heroPosition) : direction(_direction), x(heroPosition.X + dx[_direction]), y(heroPosition.Y + dy[_direction])
 {
 	arrowTotal++;
 }
@@ -50,9 +50,9 @@ const bool Arrow::isExist() const
 	return exist;
 }
 
-const int Arrow::damage(const int creatureX, const int creatureY)
+const int Arrow::damage(const Point creaturePosition)
 {
-	if (x == creatureX && y == creatureY)
+	if (x == creaturePosition.X && y == creaturePosition.Y)
 	{
 		exist = false;
 		return attack;

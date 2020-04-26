@@ -65,9 +65,9 @@ public:
 	const bool loadFindTrapLocation(vector<Trap>& traps, const int trapY, string& stringT, const char floor, const char trapSkin);
 	const void heroSwordAttack();
 	const void heroBowAttack();
-	const void heroMove(const int _x, const int _y);
+	const void heroMove(const Point dxy);
 	const void creaturesTurn();
-	const void trackHero(const int heroX, const int heroY, const int creatureX, const int creatureY, Creature& creatureT);
+	const void trackHero(const Point heroPosition, const Point creaturePosition, Creature& creatureT);
 	const void heroBeDamaged();
 	const void generateTrigger();
 	const void arrowsTurn();

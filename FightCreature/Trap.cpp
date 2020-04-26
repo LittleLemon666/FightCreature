@@ -24,6 +24,11 @@ const int Trap::getY() const
 	return y;
 }
 
+const Point Trap::getPosition() const
+{
+	return Point(x, y);
+}
+
 const void Trap::touchTrap()
 {
 	exist = false;

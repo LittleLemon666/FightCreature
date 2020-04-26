@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iomanip>
+#include "Point.h"
 using namespace std;
 
 class Arrow
@@ -16,7 +17,7 @@ private:
 	bool exist = true;
 
 public:
-	Arrow(const int _direction, const int heroX, const int heroY);
+	Arrow(const int _direction, const Point heroPosition);
 	~Arrow();
 	static int arrowTotal;
 	const int getX() const;
@@ -25,7 +26,7 @@ public:
 	const void nextStep(int& nextX, int& nextY) const;
 	const bool arrowMove();
 	const bool isExist() const;
-	const int damage(const int creatureX, const int creatureY);
+	const int damage(const Point creaturePosition);
 	const void arrowEnd();
 
 };

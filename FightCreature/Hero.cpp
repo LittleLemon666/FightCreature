@@ -26,6 +26,11 @@ const int Hero::getY() const
 	return y;
 }
 
+const Point Hero::getPosition() const
+{
+	return Point(x, y);
+}
+
 const int Hero::getSwordDirection() const
 {
 	return swordDirection;
@@ -39,13 +44,13 @@ const void Hero::vincible()
 	}
 }
 
-const void Hero::setHeroLocation(const int dungeonWidth, const int dungeonHeight, int&& mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
+const void Hero::setHeroLocation(const Point dungeonRectangle, int&& mode) //mode 1:QuickGame 2:LoadGame 3:CustomGame
 {
 	switch (mode)
 	{
 	case 1:
-		x = rand() % (dungeonWidth - 2) + 1;
-		y = rand() % (dungeonHeight - 2) + 1;
+		x = rand() % (dungeonRectangle.X - 2) + 1;
+		y = rand() % (dungeonRectangle.Y - 2) + 1;
 		break;
 	case 3:
 		cout << "\n";
@@ -54,24 +59,24 @@ const void Hero::setHeroLocation(const int dungeonWidth, const int dungeonHeight
 		do
 		{
 			valid = true;
-			cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
+			cout << "x (1 ~ " << dungeonRectangle.X - 2 << "): ";
 			cin >> x;
-			if (x < 1 || x >= dungeonWidth - 1)
+			if (x < 1 || x >= dungeonRectangle.X - 1)
 			{
 				valid = false;
-				cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonRectangle.X - 2 << ")\n";
 			}
 		} while (!valid);
 
 		do
 		{
 			valid = true;
-			cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
+			cout << "y (1 ~ " << dungeonRectangle.Y - 2 << "): ";
 			cin >> y;
-			if (y < 1 || y >= dungeonHeight - 1)
+			if (y < 1 || y >= dungeonRectangle.Y - 1)
 			{
 				valid = false;
-				cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonRectangle.Y - 2 << ")\n";
 			}
 		} while (!valid);
 		break;
@@ -90,31 +95,31 @@ const int Hero::loadHeroInformation(const int _x, const int _y, vector<string> l
 	return lineIndex;
 }
 
-const void Hero::move(const int _x, const int _y)
+const void Hero::move(const Point dxy)
 {
-	if (_x == -1)
+	if (dxy.X == -1)
 	{
 		swordDirection = SWest;
 	}
-	else if (_x == 1)
+	else if (dxy.X == 1)
 	{
 		swordDirection = SEast;
 	}
-	else if (_y == -1)
+	else if (dxy.Y == -1)
 	{
 		swordDirection = SNorth;
 	}
-	else if (_y == 1)
+	else if (dxy.Y == 1)
 	{
 		swordDirection = SSouth;
 	}
-	x += _x;
-	y += _y;
+	x += dxy.X;
+	y += dxy.Y;
 }
 
-const bool Hero::touchCreature(const int creatureX, const int creatureY)
+const bool Hero::touchCreature(const Point creaturePosition)
 {
-	return x == creatureX && y == creatureY;
+	return x == creaturePosition.X && y == creaturePosition.Y;
 }
 
 const void Hero::hurt(const int damage)
@@ -137,36 +142,36 @@ const void Hero::hurt(const int damage)
 	InvincibleStart = InvincibleBegin = clock();
 }
 
-const int Hero::slash(const int creatureX, const int creatureY) const
+const int Hero::slash(const Point creaturePosition) const
 {
-	if (creatureX == x && creatureY == y)
+	if (creaturePosition.X == x && creaturePosition.Y == y)
 	{
 		return attack;
 	}
 	else if (swordDirection == SNorth)
 	{
-		if (creatureX == x && y - creatureY == 1)
+		if (creaturePosition.X == x && y - creaturePosition.Y == 1)
 		{
 			return attack;
 		}
 	}
 	else if (swordDirection == SEast)
 	{
-		if (creatureX - x == 1 && y == creatureY)
+		if (creaturePosition.X - x == 1 && y == creaturePosition.Y)
 		{
 			return attack;
 		}
 	}
 	else if (swordDirection == SWest)
 	{
-		if (x - creatureX == 1 && y == creatureY)
+		if (x - creaturePosition.X == 1 && y == creaturePosition.Y)
 		{
 			return attack;
 		}
 	}
 	else if (swordDirection == SSouth)
 	{
-		if (creatureX == x && creatureY - y == 1)
+		if (creaturePosition.X == x && creaturePosition.Y - y == 1)
 		{
 			return attack;
 		}

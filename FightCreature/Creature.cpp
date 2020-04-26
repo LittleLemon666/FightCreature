@@ -34,18 +34,23 @@ const int Creature::getY() const
 	return y;
 }
 
+const Point Creature::getPosition() const
+{
+	return Point(x, y);
+}
+
 const int Creature::damage() const
 {
 	return attack;
 }
 
-const void Creature::setCreatureLocation(const int dungeonWidth, const int dungeonHeight, const int mode)
+const void Creature::setCreatureLocation(const Point dungeonRectangle, const int mode)
 {
 	switch (mode)
 	{
 	case 1:
-		x = rand() % (dungeonWidth - 2) + 1;
-		y = rand() % (dungeonHeight - 2) + 1;
+		x = rand() % (dungeonRectangle.X - 2) + 1;
+		y = rand() % (dungeonRectangle.Y - 2) + 1;
 		break;
 	case 3:
 		cout << "\n";
@@ -54,34 +59,34 @@ const void Creature::setCreatureLocation(const int dungeonWidth, const int dunge
 		do
 		{
 			valid = true;
-			cout << "x (1 ~ " << dungeonWidth - 2 << "): ";
+			cout << "x (1 ~ " << dungeonRectangle.X - 2 << "): ";
 			cin >> x;
-			if (x < 1 || x >= dungeonWidth - 1)
+			if (x < 1 || x >= dungeonRectangle.X - 1)
 			{
 				valid = false;
-				cout << "input is out of range (1 ~ " << dungeonWidth - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonRectangle.X - 2 << ")\n";
 			}
 		} while (!valid);
 
 		do
 		{
 			valid = true;
-			cout << "y (1 ~ " << dungeonHeight - 2 << "): ";
+			cout << "y (1 ~ " << dungeonRectangle.Y - 2 << "): ";
 			cin >> y;
-			if (y < 1 || y >= dungeonHeight - 1)
+			if (y < 1 || y >= dungeonRectangle.Y - 1)
 			{
 				valid = false;
-				cout << "input is out of range (1 ~ " << dungeonHeight - 2 << ")\n";
+				cout << "input is out of range (1 ~ " << dungeonRectangle.Y - 2 << ")\n";
 			}
 		} while (!valid);
 		break;
 	}
 }
 
-const void Creature::loadCreatureLocation(const int _x, const int _y)
+const void Creature::loadCreatureLocation(const Point creaturePosition)
 {
-	x = _x;
-	y = _y;
+	x = creaturePosition.X;
+	y = creaturePosition.Y;
 }
 
 const int Creature::loadCreatureInformation(vector<string>& stringLine, const int lineIndex, vector<char>& creaturesSkineList, const int creaturesPropertyIndex)
@@ -118,41 +123,41 @@ const bool Creature::canCreaturesTurn()
 	return false;
 }
 
-const void Creature::seeHero(const int heroX, const int heroY)
+const void Creature::seeHero(const Point heroPosition)
 {
-	if (x > heroX && x - heroX <= 3 && y == heroY)
+	if (x > heroPosition.X && x - heroPosition.X <= 3 && y == heroPosition.Y)
 	{
 		heroDirection = West;
 	}
-	else if (x < heroX && x - heroX >= -3 && y == heroY)
+	else if (x < heroPosition.X && x - heroPosition.X >= -3 && y == heroPosition.Y)
 	{
 		heroDirection = East;
 	}
-	else if (x > heroX && x - heroX <= 3 && y > heroY && y - heroY <= 3)
+	else if (x > heroPosition.X && x - heroPosition.X <= 3 && y > heroPosition.Y && y - heroPosition.Y <= 3)
 	{
 		heroDirection = NorthWest;
 	}
-	else if (x > heroX && x - heroX <= 3 && y < heroY && y - heroY >= -3)
+	else if (x > heroPosition.X && x - heroPosition.X <= 3 && y < heroPosition.Y && y - heroPosition.Y >= -3)
 	{
 		heroDirection = SouthWest;
 	}
-	else if (x < heroX && x - heroX >= -3 && y > heroY && y - heroY <= 3)
+	else if (x < heroPosition.X && x - heroPosition.X >= -3 && y > heroPosition.Y && y - heroPosition.Y <= 3)
 	{
 		heroDirection = NorthEast;
 	}
-	else if (x < heroX && x - heroX >= -3 && y < heroY && y - heroY >= -3)
+	else if (x < heroPosition.X && x - heroPosition.X >= -3 && y < heroPosition.Y && y - heroPosition.Y >= -3)
 	{
 		heroDirection = SouthEast;
 	}
-	else if (x == heroX && y < heroY && y - heroY >= -3)
+	else if (x == heroPosition.X && y < heroPosition.Y && y - heroPosition.Y >= -3)
 	{
 		heroDirection = South;
 	}
-	else if (x == heroX && y > heroY && y - heroY <= 3)
+	else if (x == heroPosition.X && y > heroPosition.Y && y - heroPosition.Y <= 3)
 	{
 		heroDirection = North;
 	}
-	else if (x == heroX && y == heroY)
+	else if (x == heroPosition.X && y == heroPosition.Y)
 	{
 		heroDirection = Beside;
 	}
@@ -171,12 +176,12 @@ const void Creature::seeHero(const int heroX, const int heroY)
 	}
 }
 
-const void Creature::move(const int _x, const int _y)
+const void Creature::move(const Point dxy)
 {
 	if (energy >= maxEnergy)
 	{
-		x += _x;
-		y += _y;
+		x += dxy.X;
+		y += dxy.Y;
 		energy = 0;
 	}
 	else

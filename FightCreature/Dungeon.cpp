@@ -31,14 +31,14 @@ const char Dungeon::getFloorSkin() const
 	return floor;
 }
 
-const bool Dungeon::isObstacle(int x, int y) const
+const bool Dungeon::isObstacle(const Point position) const
 {
-	return dungeonMap[y][x] == wall;
+	return dungeonMap[position.Y][position.X] == wall;
 }
 
-const bool Dungeon::isBoundary(int x, int y) const
+const bool Dungeon::isBoundary(const Point position) const
 {
-	return x < 0 || x > width - 1 || y < 0 || y > height - 1;
+	return position.X < 0 || position.X > width - 1 || position.Y < 0 || position.Y > height - 1;
 }
 
 const void Dungeon::fill()
@@ -116,7 +116,7 @@ const void Dungeon::customMap()
 	generatePlain();
 }
 
-const void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Point> creaturePoints, const int creatureNum)
+const void Dungeon::generateTerrain(const Point heroPosition, vector<Point> creaturePoints, const int creatureNum)
 {
 	fill();
 
@@ -124,7 +124,7 @@ const void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Poi
 	{
 		while (true)
 		{
-			if (searchPath(heroX, heroY, creaturePoints[i].X, creaturePoints[i].Y, 0, pow(heroX - creaturePoints[i].X, 2) + pow(heroY - creaturePoints[i].Y, 2)))
+			if (searchPath(heroPosition, creaturePoints[i], 0, pow(heroPosition.X - creaturePoints[i].X, 2) + pow(heroPosition.Y - creaturePoints[i].Y, 2)))
 			{
 				break;
 			}
@@ -133,11 +133,11 @@ const void Dungeon::generateTerrain(const int heroX, const int heroY, vector<Poi
 	}
 }
 
-const void Dungeon::generateTerrain(const int heroX, const int heroY, const int creatureX, const int creatureY)
+const void Dungeon::generateTerrain(const Point heroPosition, const Point creaturePosition)
 {
 	while (true)
 	{
-		if (searchPath(heroX, heroY, creatureX, creatureY, 0, pow(heroX - creatureX, 2) + pow(heroY - creatureY, 2)))
+		if (searchPath(heroPosition, creaturePosition, 0, pow(heroPosition.X - creaturePosition.X, 2) + pow(heroPosition.Y - creaturePosition.Y, 2)))
 		{
 			break;
 		}
@@ -145,14 +145,14 @@ const void Dungeon::generateTerrain(const int heroX, const int heroY, const int 
 	}
 }
 
-const bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int p, int pStop)
+const bool Dungeon::searchPath(Point nowPosition, Point targetPosition, int p, int pStop)
 {
 	if (p >= pStop)
 	{
 		return false;
 	}
-	dungeonMap[nowY][nowX] = floor;
-	if (nowX == targetX && nowY == targetY)
+	dungeonMap[nowPosition.Y][nowPosition.X] = floor;
+	if (nowPosition.X == targetPosition.X && nowPosition.Y == targetPosition.Y)
 	{
 		return true;
 	}
@@ -160,11 +160,11 @@ const bool Dungeon::searchPath(int nowX, int nowY, int targetX, int targetY, int
 	int dx[] = { 0, 0, -1, 1 };
 	int dy[] = { -1, 1, 0, 0 };
 	int dir = rand() % 4;
-	while (isBoundary(nowX + dx[dir], nowY + dy[dir]))
+	while (isBoundary(Point(nowPosition.X + dx[dir], nowPosition.Y + dy[dir])))
 	{
 		dir = rand() % 4;
 	}
-	return searchPath(nowX + dx[dir], nowY + dy[dir], targetX, targetY, p + 1, pStop);
+	return searchPath(Point(nowPosition.X + dx[dir], nowPosition.Y + dy[dir]), targetPosition, p + 1, pStop);
 }
 
 vector<string> Dungeon::outputMap() const

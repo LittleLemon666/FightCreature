@@ -1,4 +1,6 @@
 #pragma once
+#include "Point.h"
+
 class Trap
 {
 private:
@@ -15,6 +17,7 @@ public:
 	static char trapShape;
 	const int getX() const;
 	const int getY() const;
+	const Point getPosition() const;
 	const void touchTrap();
 	const void destroyTrap(const bool haveDamage);
 	const char printTrap() const;
